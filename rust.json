@@ -1,0 +1,1330 @@
+{
+    "Main unimplement": {
+        "prefix": "mb.main.unimpl",
+        "body": ["fn main(){", "    unimplemented!()", "}"],
+        "description": "Most used attributes"
+    },
+
+    "Attrs": {
+        "prefix": "ms.attr",
+        "body": [
+            "#[allow(unused_variables)]",
+            "#[derive(Debug,PartialEq,Eq)]",
+            "$1"
+        ],
+        "description": "Most used attributes"
+    },
+
+    "Implement io::read": {
+        "prefix": "mb.imp.io.read",
+        "body": [
+            "use std::io;",
+            "impl io::Read for $1 {",
+            "fn read(&mut self, _buf: &mut [u8]) -> io::Result<usize> {",
+            "   $2",
+            "}"
+        ],
+        "description": "Function Read Return Result<usize>"
+    },
+    "Implement new struc constructor": {
+        "prefix": "mb.imp.new",
+        "body": [
+            "use std::error;",
+            "//#[derive(PartialEq, Debug)]",
+            "struct $1(u64);",
+            "impl $2 {",
+            "fn new(value: i64) -> Result<$3, CreationError> {",
+            "   if value == 0 {",
+            "       Err(CreationError::field1)",
+            "   } else if value < 0 {",
+            "       Err(CreationError::field2)",
+            "   } else {",
+            "       Ok($4(value as u64))",
+            "          }",
+            "   }",
+            "}",
+            "//Implement CreationError",
+            "mb.imp.error.self$5"
+        ],
+        "description": "$1-$4  is the same name"
+    },
+    "Implement Error Customize": {
+        "prefix": "mb.imp.error.self",
+        "body": [
+            "//use std::error;",
+            "impl error::Error for $1 {",
+            "     fn description(&self) -> &str {",
+            "                     match *self {",
+            "                     $2::field1 => \"\",",
+            "                     $3::field2 => \"\",",
+            "                     }",
+            "      }",
+            "}",
+            "enum CreationError {",
+            "     field1,",
+            "     field2,",
+            "}"
+        ],
+        "description": "$1-$3  is the same name"
+    },
+
+    "todo": {
+        "prefix": "ml.todo",
+        "body": ["// TODO:$1", "$2"],
+        "description": "Todo Later sth"
+    },
+    "To Report Bug": {
+        "prefix": "ml.torepobug",
+        "body": [
+            "// TO_REPORT_BUG:$1 *GrepperHelp:$2 *BecauseOf(-):$3 *BecauseOf(?):-$4",
+            "$5"
+        ],
+        "description": "For help and cached possible bugs "
+    },
+    "Main function with err handle": {
+        "prefix": "mb.main",
+        "body": [
+            "use std::io::Error;",
+            "fn main() -> Result<(), Box<dyn Error>> {",
+            "   let item=func()?;",
+            "   $1",
+            "   Ok(())",
+            "}"
+        ],
+        "description": "Range pattern, BK REF here matches 1 and 2; partially unstable. 🚧"
+    },
+    "While until time specific": {
+        "prefix": "ms.time.while",
+        "body": [
+            "use std::time::{Duration, Instant};",
+            "let mut count = 0;",
+            "let time_limit = Duration::new(10,0);",
+            "let start = Instant::now();",
+            "while (Instant::now() - start) < time_limit {",
+            "    count += 1;",
+            "}"
+        ],
+        "description": "It isn’t an ideal method for implementing benchmarks"
+    },
+    "Calc Duration": {
+        "prefix": "ms.time.duration",
+        "body": [
+            "let start = time::Instant::now();",
+            "let finish = time::Instant::now();",
+            "println!(\"{}\\t{:02?}\", n, finish.duration_since(start));"
+        ],
+        "description": "Calc Duration Start until finish"
+    },
+    "Pattern range": {
+        "prefix": "ml.p.range..",
+        "body": ["1..=3 => {pr$1}", "$2"],
+        "description": "_exclusive range  pattern, BK REF here matches 1 and 2; partially unstable. 🚧"
+    },
+    "Consume if let - getting value option of some": {
+        "prefix": "ml.consume.if.option.val",
+        "body": [
+            "if let Some(value) = optional_value {",
+            "   println!(\"{$1}\", value);",
+            "}"
+        ],
+        "description": "Or you can try 'let' in while"
+    },
+    "Consume match let - getting value option of some": {
+        "prefix": "ml.consume.match.option.val",
+        "body": [
+            "let maybe_name = Some(String::from(your_str));",
+            "// Using `ref`, the value is borrowed, not moved ...",
+            "match maybe_name {",
+            "     Some(ref n) => println!(\"{n}\"),",
+            "     => println!(\"Hello, world\"),",
+            "}"
+        ],
+        "description": "Or you can try without ref for making movable and assignable n variable"
+    },
+    "Destructure struct": {
+        "prefix": "ml.destruct",
+        "body": ["let Point { x: $1, y: $2 } = point;", "$3"],
+        "description": "using a `let` binding"
+    },
+    "Generate random": {
+        "prefix": "ml.rand1",
+        "body": ["rand::random::<$1u8>()", "$2"],
+        "description": "cargo add rand"
+    },
+    "Generate random call fun": {
+        "prefix": "ml.rand2",
+        "body": ["use rand::random;", "$1random()"],
+        "description": "cargo add rand"
+    },
+    "@Pattern binding": {
+        "prefix": "ml.patt.binding@..",
+        "body": ["x @ 1..=$1 => {pr$2}", "$3"],
+        "description": "inclusive range Bind matched to x; pattern binding, BK EX REF here x would be 1, 2, … or 5."
+    },
+    "Pattern Right": {
+        "prefix": "ms.patt.right..",
+        "body": [
+            "struct Point {",
+            "       x: f32,",
+            "       y: f32,",
+            "}",
+            "let p: Point = Point { x: q, y: z };",
+            "let r = Point { x: w, ..point};"
+        ],
+        "description": "{ x, ..p}- ..p Return z or y value"
+    },
+    "Transmute": {
+        "prefix": "ms.mem.tran",
+        "body": [
+            "use std::mem;",
+            "let ($1a,$2b): ($3i32, $4i32) = unsafe {",
+            "    (mem::transmute(x), mem::transmute(y))",
+            "};"
+        ],
+        "description": "Transmute unsafe memory"
+    },
+
+    "'Flow control": {
+        "prefix": "ms.'for",
+        "body": [
+            "'outer: for i in 1..10 {",
+            "    for n in &yourvec {",
+            "        if i+n ==11  {",
+            "            break \"outer;",
+            "        }",
+            "     }",
+            "}"
+        ],
+        "description": "Syntactic sugar ~ Higher-ranked trait bounds"
+    },
+    "Find word": {
+        "prefix": "ms.str.find.line",
+        "body": [
+            "for line in quote.lines() { ",
+            "    if line.contains(search_term) {",
+            "   }",
+            " }"
+        ],
+        "description": "Find line in lines"
+    },
+
+    "Vec in vec key value": {
+        "prefix": "ms.vecinvec.enum",
+        "body": [
+            "let mut v: Vec<Vec<(usize, String)>> = vec![];",
+            "for (i, line) in v.lines().enumerate() {",
+            "if  {",
+            "     let v = Vec::with_capacity(num);",
+            "     v.push(i);",
+            "    }",
+            "}"
+        ],
+        "description": "where T is a pair of values of type (usize, String)"
+    },
+
+    "Error codes from a global variable": {
+        "prefix": "ms.util.errorglobal.unsafe",
+        "body": [
+            "static mut ERROR: i32 = 0;",
+            " unsafe {",
+            "   if ERROR != 0 {",
+            "      panic!($1An error has occurred while closing the file $2)",
+            "   }",
+            " }"
+        ],
+        "description": "where T is a pair of values of type (usize, String)"
+    },
+    "Add method to standard library types": {
+        "prefix": "ms.util.string.append",
+        "body": [
+            "trait Append {",
+            "     fn append_bar(self) -> Self;",
+            "}",
+            "impl Append for String {",
+            "    fn append(mut self,&str) -> Self {",
+            "       self.push_str(&str);",
+            "       self",
+            "   }",
+            "}",
+            "String::from(\"\").append(\"ArmanRiazi\")"
+        ],
+        "description": "Add trait custom to another types that implemented traits. Other e.g.impl Append for Vec<String>"
+    },
+
+    "Partial Eq On Struct": {
+        "prefix": "ms.util.eqstruct",
+        "body": [
+            "#[derive(PartialEq)]",
+            "impl PartialEq for Structname {",
+            "fn eq(&self, other: &Self) -> bool {",
+            "   self.field1 == other.field1",
+            "  }",
+            "}"
+        ],
+        "description": "assert_eq!(b1.eq(&b2),false); assert!(b1 == b2);"
+    },
+    "Partial Eq On Enum": {
+        "prefix": "ms.util.eqwithenum",
+        "body": [
+            "#[derive(PartialEq)]",
+            "impl PartialEq<EnumName> for StructName {",
+            "    fn eq(&self, other: &EnumName) -> bool {",
+            "       self.EnumFieldName == *other",
+            "  }",
+            "}"
+        ],
+        "description": " assert!(b1 == StructName::EnumFieldName); assert!(b1 == b2);"
+    },
+
+    "Summery Trait on struct fields": {
+        "prefix": "ms.util.trait.summarize",
+        "body": [
+            "pub trait Summary {",
+            "    fn summarize(&self) -> String;",
+            "}",
+            "impl Summary for $1StructName {",
+            "    fn summarize(&self) -> String {",
+            "        format!($2{}$3,self.$3)",
+            "   }",
+            "}"
+        ],
+        "description": " let mut counter = Counter::new();counter.incr();"
+    },
+    "Counter": {
+        "prefix": "ms.util.counteri32",
+        "body": [
+            "  struct Counter {",
+            "   value: i32,",
+            "  }",
+            "  impl Counter {",
+            "  type Output=Counter;",
+            "  fn new() -> Self::Output {",
+            "   Counter { value: 0 }",
+            "  }",
+            "  fn incr(&mut self) {",
+            "    self.value += 1;",
+            "   }",
+            "  fn dec(&mut self) {",
+            "    self.value -= 1;",
+            "   }",
+            "  }"
+        ],
+        "description": " let mut counter = Counter::new();counter.incr();"
+    },
+    "Operaor": {
+        "prefix": "ms.util.calc",
+        "body": [
+            "use std::ops::*;",
+            "fn add<T: std::ops::Add<Output = T>>(i: T, j: T) -> T {",
+            "   i.add(j)",
+            "}",
+            "fn <T: Sub<Output = T>>(i: T, j: T) -> T {",
+            "   i.saturating_sub(j)//checked_sub",
+            "}",
+            "fn equal<T: std::ops::PartialEq<Output = bool>>(i: T, j: T) -> bool{",
+            "   i.eq(&j)",
+            "}"
+        ],
+        "description": " let mut counter = Counter::new();counter.incr();"
+    },
+    "Sum accumilator Fold": {
+        "prefix": "ms.util.fold",
+        "body": ["(1..=num).into_iter().fold(0,|x,y| x+y)"],
+        "description": " sum item with next item"
+    },
+    "Multiply accumilator Fold": {
+        "prefix": "ms.util.product",
+        "body": ["(1..=num).product()"],
+        "description": " for multiply or factorial"
+    },
+    "Get Memory Address &Size Memory ofa struct": {
+        "prefix": "ms.util.getaddress.struct",
+        "body": [
+            "let uc_address = uc_slice as *const UsageCounter as usize;",
+            "let size_of_uc = std::mem::size_of::<UsageCounter>();"
+        ],
+        "description": "Return addr of a struct_slice"
+    },
+    "Clap run buy param": {
+        "prefix": "ms.app.clap",
+        "body": [
+            "use clap::{App,Arg};",
+            "  let args = App::new()",
+            " .version()",
+            " .about()",
+            " .arg(Arg::with_name(\"pattern\")",
+            "   .help()",
+            "   .takes_value(true)",
+            "   .required(true))",
+            " .get_matches();",
+            "  let pattern = args.value_of(\"pattern\").unwrap();"
+        ],
+        "description": "Supporting command-line arguments exmp: cargo run -- patternvalue and then ./target/debug/grep-lite --help "
+    },
+
+    "Factorial": {
+        "prefix": "mb.factorial",
+        "body": [
+            "match n {",
+            "0 => 0,",
+            "1 => 1,",
+            "_ => n + factorial(n-1)",
+            "}"
+        ],
+        "description": "Factorial function"
+    },
+
+    "Copy/Clone/Imp strategy": {
+        "prefix": "ms.rc.mut",
+        "body": [
+            "use std::copy::Copy;",
+            "use std::clone::Clone;",
+            "impl Copy for StatusMessage { }",
+            "impl Clone for StatusMessage {",
+            "  fn clone(&self) -> Self {",
+            "     *self",
+            "  }"
+        ],
+        "description": "With impl no need to use .clone()"
+    },
+    "Warp type mutable": {
+        "prefix": "ms.rc.mut",
+        "body": [
+            "use std::rc::Rc;",
+            "use std::cell::RefCell;",
+            "   let base: Rc<RefCell<YourStruct>> = Rc::new(RefCell::new(",
+            "   YourStruct {",
+            "     x: 87.65",
+            "   }",
+            "  ));",
+            "  {",
+            "   //Interior scope in main scope",
+            "   let mut base_2 = base.borrow_mut();",
+            "   base_2.x -= 12.34;",
+            "   println!($1base_2: {:?}$2, base_2);",
+            "  }",
+            "   println!($3base: {:?}$4, base);"
+        ],
+        "description": "wrapper type = reference-counted value = shared ownership =track valid references.Rc<T> does not allow mutation. To permit that, we need to wrap our wrapper. Rc<RefCell<T>>"
+    },
+
+    "AsRef Generic": {
+        "prefix": ["ms.gen.asref.where", "ms.asref.gen"],
+        "body": [
+            "fn char_counter<T: AsRef<str>>(arg: T) -> usize {",
+            "   arg.as_ref().chars().count()",
+            "}"
+        ],
+        "description": "AsRef Generic to 2 style"
+    },
+    "AsRef Generic With Where": {
+        "prefix": ["ms.gen.asref.where", "ms.asref.where"],
+        "body": [
+            "fn byte_counter<T>(arg: T) -> usize ",
+            "where ",
+            "T: AsRef<str>,",
+            "{",
+            "arg.as_ref().as_bytes().len()",
+            "}"
+        ],
+        "description": "AsRef Generic to Where style"
+    },
+    "Generic Operators Traits": {
+        "prefix": "ms.gen.opr",
+        "body": [
+            "use std::ops::{$1};",
+            "fn $2<T: $3<Output = T>>(i: T, j: T) -> T {",
+            "     i.$4(j)",
+            "}"
+        ],
+        "description": "a trait bound = T: $3<Output = T>>. During the compilation process, a + b is converted to a.add(b)"
+    },
+    "Print to console": {
+        "prefix": "mylog",
+        "body": ["console.log(\"$1\");", "$2"],
+        "description": "Log output to console"
+    },
+    "Let to let": {
+        "prefix": "mb.letlet",
+        "body": ["let $1 = {let $2 = $3;let $4 = $5;$6};", "$7"],
+        "description": "block expressian without func"
+    },
+
+    "Println fmt macro": {
+        "prefix": "ml.pr",
+        "body": ["println!(\"Printed:{:?}\",$1);", "$4"],
+        "description": "print formated to console"
+    },
+    "Define Macro": {
+        "prefix": "mb.ma",
+        "body": [
+            "mod  macros {",
+            "#[macro_export]",
+            "macro_rules! $1{",
+            "($val:expr)=>{",
+            "};",
+            "$2",
+            "}"
+        ],
+        "description": "Macro defination"
+    },
+
+    "Impl differenct generic reverse": {
+        "prefix": "ms.impl.type.mix",
+        "body": [
+            "struct Point<X1, Y1> {",
+            "       x: X1,",
+            "       y: Y1,",
+            "}",
+            "impl<X1, Y1> Point<X1, Y1> {",
+            "    fn mixup<X2, Y2>(self, other: Point<X2, Y2>) -> Point<X1, Y2> {",
+            "       Point {",
+            "              x: self.x,",
+            "              y: other.y,",
+            "             }",
+            "       }",
+            "}"
+        ],
+        "description": "p1.mixup(p2); A method that uses different generic types from its struct’s definition"
+    },
+    "Impl lifetime on where": {
+        "prefix": "ms.impl.wh.lifetime.for",
+        "body": [
+            "fn func_name<F>(slice: &[i32], pred: F) -> Vec<i32>",
+            "where for<\"a> F: Fn(&\"a i32) -> bool",
+            "{",
+            "       let mut result = vec![];",
+            "       for &element in slice {",
+            "           if pred(&element) {",
+            "               result.push(element);",
+            "        }",
+            "      }",
+            "   result",
+            "}"
+        ],
+        "description": "This specifies that the reference on i32 in the Fn trait bound can have any lifetime."
+    },
+    "Generic Imp": {
+        "prefix": "ms.impl.wh.gen",
+        "body": [
+            "impl<T> TrainName for StructName<T>",
+            "where T:AddAssign + Copy + PartialOrd",
+            "{",
+            "   type Item=T;",
+            "",
+            "   fn next(&mut self)->Option<T>{",
+            "        if self.x >= self.y {",
+            "          return None;",
+            "        }",
+            "       let res = self.y;",
+            "       self.y += self.w;",
+            "       Some(res)",
+            "    }",
+            "}"
+        ],
+        "description": "You can see e.g iterator implement"
+    },
+    "Trait Skeleton": {
+        "prefix": "mb.trait",
+        "body": [
+            "trait $1Name { ",
+            "fn $2name(self: &Self, $3: &mut $4Vec<>) -> Result<$5usize, String>;",
+            "}",
+            "#[allow(unused_variables)]",
+            "impl $6Name for $7StructName {",
+            "fn $8name(){",
+            " Ok(())",
+            "}"
+        ],
+        "description": "Trait block"
+    },
+
+    "Static lifetime": {
+        "prefix": "ml.\"stat",
+        "body": ["static mut $1: &\"static str = \"$2\";", "$3"],
+        "description": "stdin"
+    },
+
+    "CONST EPSILON": {
+        "prefix": "ml.const.EPSILON",
+        "body": ["assert!($1your_absolute_difference <= f32::EPSILON);", "$2"],
+        "description": "Equal zero float handled"
+    },
+    "Identifier": {
+        "prefix": "ml.le",
+        "body": ["let $1:$2 = $3;", "$4"],
+        "description": "An identifier, for example in let x = 0; the identifier is x."
+    },
+    "Slice string": {
+        "prefix": "ml.string.slice",
+        "body": ["&String::from($1)[0..$2]", "$3"],
+        "description": "Array String Slice"
+    },
+    "Format Hex Clike Cast Print": {
+        "prefix": "ml.format.clike.hex",
+        "body": ["println!($1roses are #{:06x}$2, Color::Red as i32);", "$3"],
+        "description": "Format Hex Clike Cast Print"
+    },
+    "UnImplemented": {
+        "prefix": "ms.unimp",
+        "body": [
+            "#[allow(dead_code)]",
+            "fn read(f: &mut File, save_to: &mut Vec<u8>) -> ! { ",
+            "   unimplemented!()",
+            "}"
+        ],
+        "description": "Return Nothing ! no ()"
+    },
+    "Explicit Use Crate": {
+        "prefix": "ms.use.explicit.reduce.path",
+        "body": ["use crate::Status::{X, Y};", "let status = X;"],
+        "description": "Exmp Union sth::sth reduced to just sth"
+    },
+    "Memory Address &Size Memory": {
+        "prefix": "ms.mem.addr.get",
+        "body": [
+            "let uc_address = uc_slice as *const UsageCounter as usize;",
+            "let size_of_uc = std::mem::size_of::<UsageCounter>();"
+        ],
+        "description": "Return addr of a struct_slice"
+    },
+    "Cast non-primitive types with as": {
+        "prefix": "ml.cast.nonprimitive",
+        "body": [
+            "let uc_address = uc_slice as *const UsageCounter;",
+            "let size_of_uc = std::mem::size_of::<UsageCounter>();"
+        ],
+        "description": "Return addr of a struct_slice"
+    },
+    "Memory  OverWrite to a address mem": {
+        "prefix": "ms.mem.addr.get",
+        "body": [
+            "unsafe {",
+            "  std::ptr::write(uc_addr as *mut usize, 0usize);",
+            "}"
+        ],
+        "description": "Unsafe OverWrite 0 to addr"
+    },
+
+    "Memory capacity of value": {
+        "prefix": "ms.mem.size",
+        "body": [
+            "let xs: [i32; 5] = [1, 2, 3, 4, 5];",
+            "ml.pr$1 mem::size_of_val(&xs));"
+        ],
+        "description": "Return num of bytes"
+    },
+    "String to_owned": {
+        "prefix": "ml.string.to_owned",
+        "body": ["let $1  = $2::$3($4my text.to_owned())", "$5"],
+        "description": "Expected struct `String`, found `&str`"
+    },
+
+    "Test_Block": {
+        "prefix": "mb.testunit",
+        "body": [
+            "impl<T: Display> Display for Complex<T> {",
+            "    fn fmt(&self, f: &mut Formatter) -> Result {",
+            "        write!(f, \"{} + {}i\", self.$1, self.$2)",
+            "    }",
+            "}",
+            "#[cfg(test)]",
+            "mod tests {",
+            "use super::*;",
+            "use pretty_assertions::assert_eq;",
+            "use pretty_assertions::{assert_eq, assert_ne};",
+            "    #[test]",
+            "    fn $3(){",
+            "       $4",
+            "    }",
+            "}"
+        ],
+        "description": "Whole test unit block"
+    },
+    "Test_Proptest Block": {
+        "prefix": "mb.testpropunit",
+        "body": [
+            "impl<T: Display> Display for Complex<T> {",
+            "    fn fmt(&self, f: &mut Formatter) -> Result {",
+            "        write!(f, \"{} + {}\", self.$1, self.$2)",
+            "    }",
+            "}",
+            "#[cfg(test)]",
+            "mod tests {",
+            "use super::*;",
+            "use proptest::prelude::*;",
+            "use pretty_assertions::assert_eq;",
+            "use pretty_assertions::{assert_eq, assert_ne};",
+            "proptest! {",
+            "    #[test]",
+            "    fn $3(){",
+            "       $4",
+            "    }",
+            "  }",
+            "}"
+        ],
+        "description": "PropTest Framework: Whole test unit Proptest block with proptest! macro"
+    },
+
+    "Meta": {
+        "prefix": "ml.meta",
+        "body": ["#![$1]", "$2"],
+        "description": "A meta item; the things that go inside #[...] and #![...] attributes."
+    },
+    "Cfg": {
+        "prefix": "ml.cfg",
+        "body": ["#[cfg($1)]", "$2"],
+        "description": "example #[cfg(test)]"
+    },
+    "Test": {
+        "prefix": "ml.testmeta",
+        "body": ["#[test]", "$1"],
+        "description": "test with fun def"
+    },
+    "Assert_eq!": {
+        "prefix": "ml.asseq",
+        "body": ["assert_eq!($1)", "$2"],
+        "description": "assert equal"
+    },
+    "Assert!Bool": {
+        "prefix": "ml.asseq.format",
+        "body": ["assert_eq!(format!($1{:?}$2, x), $3Ok([])$4)", "$5"],
+        "description": "asserteq format"
+    },
+    "Assert!Format": {
+        "prefix": "ml.ass.bool",
+        "body": ["assert!($1)", "$2"],
+        "description": "assert(bool)"
+    },
+
+    "Unwrap Panic": {
+        "prefix": "mb.unwrap.panic",
+        "body": [
+            "fn func(item: Option<&str>) {",
+            "    let item = item.unwrap();",
+            "    if item == \"$1\" { panic!(\"$2\"\"); }",
+            "}"
+        ],
+        "description": "Option Unwrap Panic None"
+    },
+
+    "Sparkle char": {
+        "prefix": "ms.char.spec.heart",
+        "body": [
+            "let sparkle_heart = vec![240, 159, 146, 150];",
+            "let sparkle_heart = String::from_utf8_lossy(&sparkle_heart);",
+            "println!($1{}$2, sparkle_heart);",
+            "$3"
+        ],
+        "description": "Heart as byte-char"
+    },
+    "Shorthand file read_to_string": {
+        "prefix": "ml.io.readtostr",
+        "body": ["use std::fs;", "fs::read_to_string($1filename)", "$2"],
+        "description": "Eq: File::open(filename)?.read_to_string(&mut s)?;"
+    },
+    "IO/USE/FILE": {
+        "prefix": "ml.io.use.file",
+        "body": ["use std::fs::File;", "$1"],
+        "description": "Using file"
+    },
+    "IO/USE": {
+        "prefix": "ml.io.use",
+        "body": ["use std::io::BufReader;", "use std::io::prelude::*", "$1"],
+        "description": "Using BufReader"
+    },
+    "IO/BUF/Empty/NEED/FILLUP": {
+        "prefix": "ml.buf.lossy",
+        "body": [
+            "let mut buffer:Vec<u8>=vec![];",
+            "let did_read=read(&file, &mut buffer);",
+            "let text=String::from_utf8_lossy(&buffer));"
+        ],
+        "description": "Myself buf array empty needs to fillup"
+    },
+    "IO/IN": {
+        "prefix": "ml.io.in",
+        "body": ["io::stdin().read_line(&mut $1);", "$2"],
+        "description": "stdin"
+    },
+    "IO/READ": {
+        "prefix": "ml.io.read.dyn",
+        "body": ["&mut dyn io::BufRead"],
+        "description": "Dynamic Read for onvert to binary"
+    },
+    "IO/READER/NEW": {
+        "prefix": "ml.io.read.new",
+        "body": ["let mut $1 = io::BufReader::new($2yourstr.as_bytes());"],
+        "description": "New for convert to binary"
+    },
+    "IO/READER/DEBINARY": {
+        "prefix": "ml.io.read.line",
+        "body": ["$1yourbinaryvariable.read_line(&mut $2forexmp_str_var)?;"],
+        "description": "Get DeBinary"
+    },
+
+    "If let Some": {
+        "prefix": "ms.if.let.some",
+        "body": [
+            "let $1 = Some(String::from($2));",
+            "if let Some(value) = $3 {",
+            "}"
+        ],
+        "description": "$1-$3 is similar name.Make this an if let statement whose value is \"Some\" type"
+    },
+    "Get Some <Vec<Vec<>>": {
+        "prefix": "ms.vec.while.let",
+        "body": [
+            "while let Some(Some(value)) = $1vec.pop() {",
+            "      ml.pr$2",
+            "}"
+        ],
+        "description": "Access to  internal vec some"
+    },
+    "While let Some": {
+        "prefix": "ms.while.let.some",
+        "body": [
+            "let mut it = l.into_iter();",
+            "while let Some(n) = it.next(){",
+            "   s +=n",
+            "} "
+        ],
+        "description": "make this a while let statement - remember that vector.pop also adds another layer of Option<T>.\nYou can stack `Option<T>`\"s into while let and if let"
+    },
+    "macro config debug": {
+        "prefix": "ms.cfg.debug",
+        "body": [
+            "if cfg!(debug_assertions) { ",
+            "  eprintln!(\"debug: {:?} -> {:?}\",$1,$2)",
+            "}"
+        ],
+        "description": "When debugging is enabled, include this code block. The exclamation mark (!) indicates a macro invocation. eprintln! prints to standard error. The {:?} syntax requests Rust print out the default debugging representation for the two types."
+    },
+    "attribute config debug": {
+        "prefix": "mb.cfg.debug",
+        "body": [
+            "#[cfg(target_family = \"unix\")]",
+            "fn get_platform() -> String {",
+            "    \"UNIX\".into()",
+            "}",
+            "#[cfg(target_family = \"windows\")]",
+            "fn get_platform() -> String {",
+            "  \"Windows\".into()",
+            "}",
+            "fn main() {",
+            "   println!(\"This code is running on a {} family OS\", get_platform());",
+            "   if cfg!(target_feature = \"avx2\") {",
+            "      println!(\"avx2 is enabled\");",
+            "   } else {",
+            "       println!(\"avx2 is not enabled\");",
+            "   }",
+            "   if cfg!(not(any(target_arch = \"x86\", target_arch = \"x86_64\"))) {",
+            "       println!(\"This code is running on a non-Intel CPU\");",
+            "    }",
+            "}"
+        ],
+        "description": "cfg!, unlike #[cfg], does not remove any code and only evaluates to true or false. For example, all blocks in an if/else expression need to be valid when cfg! is used for the condition, regardless of what cfg! is evaluating."
+    },
+    "ParseIntError": {
+        "prefix": "ms.parseerror",
+        "body": [
+            "use std::num::ParseIntError;",
+            "fn func(item: &str) -> Result<i32, ParseIntError> {",
+            "   let item = item.parse::<i32>()?;",
+            "}",
+            "#[test]",
+            "fn test_func_item_valid() {",
+            "    assert_eq!(func(\"1\"), Ok(1));",
+            "}",
+            "#[test]",
+            "fn test_func_item_invalid() {",
+            "    assert_eq!(",
+            "    func(\"beep boop\").unwrap_err().to_string(),",
+            "    \"invalid digit found in string\"",
+            "   );",
+            "}"
+        ],
+        "description": "Todo Later sth"
+    },
+
+    "Convert bytes to ux": {
+        "prefix": ["ml.convert.vec.to.num", "ml.fromv.ec.to.num"],
+        "body": [
+            "pub fn difficulty_bytes_as_u128 (v: &Vec<u8>) -> u128 {",
+            "   ((v[31] as u128) << 0xf * 8) |",
+            "   ((v[16] as u128) << 0x0 * 8)",
+            "}"
+        ],
+        "description": "Convert ux to [ux;x]"
+    },
+
+    "Convert num to bytes slice segment": {
+        "prefix": ["ml.convert.num.to.bytes", "ml.from.num.to.sclice"],
+        "body": [
+            "pub fn u64_bytes (u: &u64) -> [u8; 8] {",
+            "  [",
+            "   (u >> 8 * 0x0) as u8,",
+            "  ]",
+            "}"
+        ],
+        "description": "Convert ux to [ux;x]"
+    },
+    "Convert Range to Vector": {
+        "prefix": "ml.convert.range_to_vec",
+        "body": ["let numbers: Vec<_> = (0..100u32).collect(); "],
+        "description": "Firstly With Convert range to collection"
+    },
+    "Filter on collection": {
+        "prefix": "ml.collect.filter",
+        "body": [
+            "let multiples_of_10 = items.iter().filter(|&y| y % 10 == 0).map(|&y| y.clone()).collect::<Vec<_>>();",
+            "let multiples_of_10: Vec<_> = items.iter().filter(|&y| y % 10 == 0).map(|&y| y.clone()).collect();",
+            "let multiples_of_10: Vec<_> = items.into_iter().filter(|y| y % 10 == 0).collect();"
+        ],
+        "description": ".iter() Returns an iterator over the slice. into_iter() Creates an iterator from a value."
+    },
+    "HashMap": {
+        "prefix": "ms.hashmap",
+        "body": [
+            "use std::collections::HashMap;",
+            "let mut hm = HashMap::new();",
+            "hm.insert(1 ,$1Hello$2);",
+            "let r = hm.get(&4).unwrap_or(&\"NoString\");"
+        ],
+        "description": "Default algo SipHash 1-3,The hashing algo can be replaced on a per-HashMap basis using the [default], [with_hasher], and [with_capacity_and_hasher] method-using #[derive(PartialEq, Eq, Hash)]. If you implement these yourself, it is important that the following property holds: k1 == k2 -> hash(k1) == hash(k2) In other words, if two keys are equal, their hashes must be equal."
+    },
+    "HashMap Mut Modified": {
+        "prefix": "ms.hashmap.mutkey",
+        "body": [
+            "map.entry($1key_str$2).or_insert(10);",
+            "map.entry(key).and_modify(|e| { *e += 2 });",
+            "",
+            "if let Entry::Occupied(o) = map.entry(key) {",
+            "   *o.into_mut() += 2;// About ~ like borrow_mut in RC type both of them called interior mutability pattern(Mutably the wrap value).",
+            "}",
+            "*map.entry(key).or_insert(10)+=2;"
+        ],
+        "description": "3 Ways for modified a key"
+    },
+
+    "Match as kind of option": {
+        "prefix": "ms.match.option",
+        "body": [
+            "match var {",
+            "   Some(\"sth\") => ml.pr,",
+            "   Some(inner)   => ,",
+            "   None          => ,",
+            "}"
+        ],
+        "description": "inner is new important-Match Option"
+    },
+    "Match Parse as kind of result called Propagating errors": {
+        "prefix": "ms.match.result",
+        "body": [
+            "match number.parse::<i32>() {",
+                "Ok(num) => num,",
+                "Err(_error) => 0",
+            "}"
+        ],
+        "description": "Match On Parse Result(propagating errors)"
+    },
+    "Implement for dsiplay": {
+        "prefix": "ms.impl.display",
+        "body": [
+            "use std::fmt; ",
+            "use std::fmt::{Display};",
+            "impl Display for FileState {",
+            "   fn fmt(&self, f:",
+            "      &mut fmt::Formatter,",
+            "    ) -> fmt::Result {",
+            "    match *self {",
+            "       FileState::Open => write!(f, $1),",
+            "       FileState::Closed => write!(f, $2),",
+            "      }",
+            "   }",
+            " }"
+        ],
+        "description": "Partial Equal Implement Method"
+    },
+    "PartialEq No Attribute": {
+        "prefix": "ms.impl.partialeq.withou.attr",
+        "body": [
+            "use std::error;",
+            "impl PartialEq for StructName {",
+            "     fn eq(&self, other: &Self) -> bool {",
+            "        self.item == other.item",
+            "     }",
+            "}",
+            "assert!(var1 == var2);"
+        ],
+        "description": "Partial Equal Implement Method"
+    },
+    "PartialEq With Attribute": {
+        "prefix": "ms.impl.partialeq.with.attr",
+        "body": [
+            "use std::error;",
+            "#[derive(PartialEq)]",
+            "enum EnumName {",
+            "}",
+            "struct StructName {",
+            "}",
+            "impl PartialEq for StructName {",
+            "     fn eq(&self, other: &EnumName) -> bool {",
+            "        self.format == *other",
+            "     }",
+            "}",
+            "assert!(var1 == var2::enumItem);",
+            "assert_eq!(var1.eq(&var2),true);"
+        ],
+        "description": "Partial Equal Implement Method"
+    },
+    "Error handle for question mark ?": {
+        "prefix": "ml.err.?",
+        "body": [
+            "#[derive(Debug)]",
+            "struct Error {",
+            "message: String,",
+            "}",
+            "impl From<std::io::Error> for Error {",
+            "   fn from(other: std::io::Error) -> Self {",
+            "    Self {",
+            "          message: other.to_string(),",
+            "         }",
+            "   }",
+            "}"
+        ],
+        "description": "Convert implicity error for ? to explicity error"
+    },
+    "Generate Throw Exception": {
+        "prefix": "ml.err.throw",
+        "body": ["Err(io::Error::new(io::ErrorKind::$1, \"$2\"))", "$3"],
+        "description": "Return Error Exception Manual"
+    },
+    "Error Dynamic Box": {
+        "prefix": "ml.error.dyn.box",
+        "body": ["Box<dyn error::Error>"],
+        "description": "The Box<dyn Error> type is called a trait object, Runtime Error by Box dyn"
+    },
+
+    "Dereference & Drop Your Own Smart Pointer": {
+        "prefix": "ms.impl.ref",
+        "body": [
+            "use std::ops::Deref;",
+            "impl<T> Deref for MyBox<T> {",
+            "   type Target = T;",
+            "   fn deref(&self) -> &Self::Target {",
+            "      &self.0",
+            "   }",
+            "}",
+            "impl DerefMut for MyBox { ",
+            "   fn deref_mut(&mut self) -> &mut Self::Target { ",
+            "      &mut self.0",
+            "   }",
+            "}",
+            "impl Drop for MyBox {",
+            "     fn drop(&mut self) {",
+            "        println!($1\"Dropping CustomSmartPointer with data `{}`!$2, self.data);",
+            "    }",
+            "}"
+        ],
+        "description": "Treating a Type Like a Reference by Implementing the Deref Trait-behind the scenes Rust actually ran this code:*(y.deref()) - drop(instanceObject)"
+    },
+
+    "Shared list wih C": {
+        "prefix": "mb.list.rc",
+        "body": [
+            "enum List {",
+            "   Cons(i32, Rc<List>),",
+            "   Nil,",
+            "}",
+            "",
+            "use crate::List::{Cons, Nil};",
+            "use std::rc::Rc;",
+            "fn main() {",
+            "   let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));",
+            "   let b = Cons(3, Rc::clone(&a));",
+            "   let c = Cons(4, Rc::clone(&a));",
+            "   println!(\"count after creating a = {}\", Rc::strong_count(&a));",
+            "}"
+        ],
+        "description": "The implementation of Rc::clone doesn’t make a deep copy of all the data like most types’ implementations of clone "
+    },
+
+    "Tree References": {
+        "prefix": "ms.tree",
+        "body": [
+            "use std::cell::RefCell;",
+            "use std::rc::{Rc, Weak};",
+            "#[derive(Debug)]",
+            "struct Node {",
+            "   value: i32,",
+            "   parent: RefCell<Weak<Node>>,",
+            "   children: RefCell<Vec<Rc<Node>>>,",
+            "}",
+            "let leaf = Rc::new(Node {",
+            "   value: 3,",
+            "   parent: RefCell::new(Weak::new()),",
+            "   children: RefCell::new(vec![]),",
+            "});",
+            "{",
+            "let branch = Rc::new(Node {",
+            "   value: 5,",
+            "   parent: RefCell::new(Weak::new()),",
+            "   children: RefCell::new(vec![Rc::clone(&leaf)]),",
+            "});",
+            "*leaf.parent.borrow_mut() = Rc::downgrade(&branch);"
+        ],
+        "description": "Creating branch in an inner scope and examining strong and weak reference counts"
+    },
+    "Reference Cycle": {
+        "prefix": "ms.list.tail",
+        "body": [
+            "use crate::List::{Cons, Nil};",
+            "use std::cell::RefCell;",
+            "use std::rc::Rc;",
+            "",
+            "#[derive(Debug)]",
+            "enum List {",
+            "   Cons(i32, RefCell<Rc<List>>),",
+            "   Nil,",
+            "}",
+            "",
+            "impl List {",
+            "    fn tail(&self) -> Option<&RefCell<Rc<List>>> {",
+            "       match self {",
+            "           Cons(_, item) => Some(item),",
+            "           Nil => None,",
+            "       }",
+            "    }",
+            "}",
+            "let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));",
+            "let b = Rc::new(Cons(10, RefCell::new(Rc::clone(&a))));"
+        ],
+        "description": "Creating a reference cycle of two List values pointing to each other"
+    },
+
+    "Clippy swap": {
+        "prefix": "ml.swap",
+        "body": ["std::mem::swap(&mut a, &mut b);"],
+        "description": "If swapping is intended, use swap() instead:a = b;b = a;"
+    },
+
+    "Recursive types": {
+        "prefix": "ms.box.cons",
+        "body": [
+            "use crate::List::{Cons, Nil};",
+            "enum List {",
+            "   Cons(i32, Box<List>),",
+            "   Nil,",
+            "}",
+            "let list = Cons(1, Box::new(Cons(2, Box::new(Cons(3, Box::new(Nil))))));"
+        ],
+        "description": "Cons is just a name and it is replacable with anyname"
+    },
+    "Sync/Mutex/SharingState/MultiThread/Arc": {
+        "prefix": "ms.thread.mutexarc",
+        "body": [
+            "use std::sync::{Arc, Mutex};",
+            "use std::thread;",
+            "let counter = Arc::new(Mutex::new(0));",
+            "let counter = Arc::clone(&counter);",
+            "let mut num = counter.lock().unwrap();"
+        ],
+        "description": "mutex arc-sharing counter for multithread"
+    },
+    "Id thread": {
+        "prefix": "ms.thread.id",
+        "body": [
+            "#![feature(thread_id)]",
+            "use std::thread;",
+            "let thread_id = thread::current().id() as u64;"
+        ],
+        "description": "Get id thread"
+    },
+
+    "Functional Programming Closure": {
+        "prefix": "ms.closure.Fn",
+        "body": [
+            "struct Cacher<T>",
+            "where",
+            "  T: Fn(u32) -> u32,",
+            "{",
+            "   calculation: T,",
+            "   value: Option<u32>,",
+            "}",
+            "impl<T> Cacher<T>",
+            "where",
+            "   T: Fn(u32) -> u32,",
+            "{",
+            "   fn new(calculation: T) -> Cacher<T> {",
+            "      Cacher {",
+            "           calculation,",
+            "           value: None,",
+            "       }",
+            "}",
+            "fn value(&mut self, arg: u32) -> u32 {",
+            "   match self.value {",
+            "         Some(v) => v,",
+            "         None => {",
+            "             let v = (self.calculation)(arg);",
+            "             self.value = Some(v);",
+            "             v",
+            "            }",
+            "        }",
+            "    }",
+            "}",
+            "#[test]",
+            "fn call_with_different_values() {",
+            "   let mut c = Cacher::new(|a| a);",
+            "   let v1 = c.value(1);",
+            "   assert_eq!(v1, 1);",
+            "}"
+        ],
+        "description": "Instead of saving the closure in a variable directly, we save a new instance of Cacher that holds the closure. "
+    },
+
+    "Spawn thread with move": {
+        "prefix": "ms.thread.spw",
+        "body": ["use std::{thread, time};", "thread::spawn(move || {", "});"],
+        "description": "create threads (often referred to as spawning treads)-Why is move required? Closures spawned in subthreads can potentially outlive their calling scope."
+    },
+    "Spawn thread with sleep strategy": {
+        "prefix": "ms.thread.sterategy.slp",
+        "body": [
+            "let pause = time::Duration::from_millis($1);",
+            "thread::sleep(pause);"
+        ],
+        "description": "A sleep is a request to the OS that the thread should be suspended until the time has passed"
+    },
+    "Spawn thread with busywait strategy": {
+        "prefix": "ms.thread.sterategy.bw",
+        "body": [
+            "let start = time::Instant::now();",
+            "let pause = time::Duration::from_millis($1);",
+            "while start.elapsed() < pause {",
+            "  thread::yield_now();",
+            "}"
+        ],
+        "description": "also known as busy loop and spin loop-If you want to sleep pause a thread for short amounts of time, or if your application is sensitive to timing, use a spin loop"
+    },
+    "Parallel Join Thread Quicksort": {
+        "prefix": "ms.thread.sterategy.stealing",
+        "body": [
+            "quick_sort<T:PartialOrd+Send>(v: &mut [T]) {",
+            "if v.len() > 1 {",
+            "   let mid = partition(v);",
+            "   let (lo, hi) = v.split_at_mut(mid);",
+            "    rayon::join(|| quick_sort(lo),",
+            "                || quick_sort(hi));",
+            "}",
+            "}",
+            "fn partition<T:PartialOrd>(v: &mut [T]) -> usize {",
+            " let pivot = v.len() - 1;",
+            " let mut i = 0;",
+            " for j in 0..pivot {",
+            "     if v[j] <= v[pivot] {",
+            "        v.swap(i, j);",
+            "        i += 1;",
+            "    }",
+            " }",
+            " v.swap(i, pivot);",
+            " i",
+            "}"
+        ],
+        "description": "Send is require because we have jump from quick func(thread a) to part func(thread b) frequently"
+    },
+    "Passing data between threads": {
+        "prefix": "ms.thread.channel",
+        "body": [
+            "use std::sync::mpsc;",
+            "let (tx, rx) = mpsc::channel();",
+            "thread::spawn(move || {",
+            "    tx.send(val).unwrap();",
+            "});",
+            "let received = rx.recv().unwrap();"
+        ],
+        "description": "Channel thread"
+    },
+    "Spawn thread with atomic strategy": {
+        "prefix": "ms.thread.sterategy.spin_loop",
+        "body": [
+            "let status = Arc::new(JobStatus {",
+            "    jobs_completed: AtomicU32::new(0),",
+            "});",
+            "let status_shared = status.clone();",
+            "thread::spawn(move || {",
+            "   for _ in 0..10 {",
+            "       thread::sleep(Duration::from_millis(250));",
+            "       status_shared.jobs_completed.fetch_add(1, Ordering::Relaxed);",
+            " }",
+            "});",
+            "while status.jobs_completed.load(Ordering::Relaxed) < 10 {",
+            "   println!(\"waiting... \");",
+            "   thread::sleep(Duration::from_millis(500));",
+            "}"
+        ],
+        "description": "An alternative to yielding is to use the function std::sync::atomic::spin_loop _hint(). spin_loop_hint() avoids the OS; instead, it directly signals the CPU. A CPU might use that hint to turn off functionality, thus saving power usage."
+    },
+    "Convert String to u128": {
+        "prefix": "mb.string_to_u128",
+        "body": [
+            "pub fn string_to_u128 (difficulty_str:&String) -> u128 {",
+            "std::process::exit(match is_run_app_stringtou128(&difficulty_str) {",
+            "Ok(str) => {",
+            "let diff_str = str.trim().to_lowercase().to_string();",
+            "let diff_digits = diff_str.strip_prefix(\"0x\").unwrap();",
+            "let difficulty = u128::from_str_radix(diff_digits, 16).unwrap();",
+            "let diff_bytes = difficulty.to_le_bytes();",
+            "let de_diff_bytes = diff_bytes;",
+            "let de_diff = u128::from_le_bytes(de_diff_bytes);",
+            "let de_diff_str = format!(\"0x{de_diff:032x}\");",
+            "assert_eq!(diff_str, de_diff_str);",
+            "return difficulty",
+            "},",
+            "Err(err) => {",
+            "eprintln!(\"error: {err:?}\");",
+            "1",
+            "}",
+            "});    ",
+            "}",
+            "fn is_run_app_stringtou128(difficulty_str:&String) -> Result<&str,&str> { ",
+            "let l=(&difficulty_str).as_str().len();    ",
+            "match l {",
+            "34 => Ok(&(difficulty_str).as_str()),",
+            "=> Err(\"difficulty length must be 34 char\")",
+            "}    ",
+            "//Ok(()))    ",
+            "}"
+        ],
+        "description": "String To u128"
+    },
+    "ReportingAllocator": {
+        "prefix": "mb.memory_allocator_report",
+        "body": [
+            "use std::alloc::{GlobalAlloc, System, Layout};",
+            "use std::time::Instant;",
+            "#[global_allocator]",
+            "static ALLOCATOR: ReportingAllocator = ReportingAllocator;",
+            "/// Prints the time taken for each allocation to STDOUT as the program runs. This provides a fairly accurate indication of the time taken for dynamic memory allocation.",
+            "struct ReportingAllocator;",
+            "/// 'System.alloc(layout);' Defers the actual memory allocation to the system’s default memory allocator",
+            "unsafe impl GlobalAlloc for ReportingAllocator {",
+            "unsafe fn alloc(&self, layout: Layout) -> *mut u8 {",
+            "    let start = Instant::now();",
+            "    let ptr = System.alloc(layout);",
+            "    let end = Instant::now();",
+            "    let time_taken = end - start;",
+            "    let bytes_requested = layout.size();",
+
+            "    eprintln!(\"{}\t{}, bytes_requested, time_taken.as_nanos());",
+            "    ptr",
+            "}",
+
+            "unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {",
+            "    System.dealloc(ptr, layout);",
+            "}",
+            "}"
+        ],
+        "description": "std::alloc provides facilities for controlling memory allocation."
+    }
+}

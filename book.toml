@@ -1,0 +1,33 @@
+[book]
+authors = ["Arman Riazi"]
+language = "en"
+multilingual = false
+src = "./workspace/"
+title = "Rust-Web"
+
+[rust]
+edition = "2021"   # the default edition for code blocks
+
+
+[build]
+# extra-watch-dirs = ["./workspace"]
+
+# [output.html]
+# theme = "my-theme"
+# default-theme = "light"
+# preferred-dark-theme = "navy"
+# curly-quotes = true
+# mathjax-support = false
+# copy-fonts = true
+# additional-css = ["rust/assets/css/custom.css"]
+# additional-js = ["rust/assets/js/custom.js"]
+# no-section-label = false
+git-repository-url = "https://github.com/armanriazi/rust-web"
+git-repository-icon = "fa-github"
+# edit-url-template = "https://github.com/armanriazi/rust-web/edit/main/workspace"
+site-url = "/rust-web/"
+# cname = "main.rs"
+# input-404 = "not-found.md"
+
+[output.html]
+site-url = "/rust-web/"
