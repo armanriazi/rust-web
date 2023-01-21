@@ -72,5 +72,34 @@ pub mod models {
             pub value: Option<String>
         }
     }
+
+    pub mod web_edu_model_product_edit {
+        #[derive(Insertable, Queryable, AsChangeset, Debug, Clone, Serialize, Deserialize)]
+        #[table_name="variants"]
+        pub struct FormVariant {
+            pub id: Option<i32>,
+            pub name: String
+        }
+
+        #[derive(Insertable, Debug, AsChangeset)]
+        #[table_name="products_variants"]
+        pub struct FormProductVariant {
+            pub id: Option<i32>,
+            pub variant_id: Option<i32>,
+            pub product_id: i32,
+            pub value: Option<String>
+        }
+
+        pub struct FormProductVariantComplete {
+            pub variant: Option<FormVariant>,
+            pub product_variant: FormProductVariant,
+        }
+
+        pub struct FormProduct {
+            pub product: NewProduct,
+            pub variants: Vec<FormProductVariantComplete>
+        }
+    }
+
 }
 

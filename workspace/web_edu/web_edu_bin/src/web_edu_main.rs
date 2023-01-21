@@ -51,13 +51,19 @@
 /// ## Example
 /// `TODO`
 
-use diesel::query_dsl::QueryDsl;
-use diesel::RunQueryDsl;
+#[macro_use]
+extern crate diesel; // imported due to form edit include update, delete
 use ::shared::connection::establish_connection;
 use diesel::sqlite::SqliteConnection;
 use diesel::result::Error;
+use anyhow::Result;
 use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
-use ::web_edu_model::models::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
+use ::web_edu_model::models::web_edu_model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
+use ::web_edu_model::models::web_edu_model_product_variant::{NewProductVariant};
+use ::web_edu_model::models::web_edu_model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
+
+no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);// imported due to form edit include update, delete
+
 
 fn main() {
     println!("The products are: {:#?}", index_list_products());
@@ -141,6 +147,43 @@ fn search_products(search: String, conn: &SqliteConnection) -> Result<Vec<(Produ
     let data = products_result.into_iter().zip(variants_result).collect::<Vec<_>>();
 
     Ok(data)
+}
+
+
+fn update_product(product_id: i32, form_product: FormProduct, conn: &SqliteConnection) -> Result<i32> {
+    use ::shoe_store::schema::products::dsl::products;
+    use ::shoe_store::schema::variants;
+    use ::shoe_store::schema::products_variants::dsl::products_variants;
+
+    // We begin a transaction, just to make sure everything runs successfully
+    conn.transaction(|| {
+        diesel::update(products.find(product_id))
+            .set(&form_product.product)
+            .execute(conn)?;
+
+        // We just loop through all variants available
+        for mut form_product_variant in form_product.variants {
+            // If there's no variant id, we probably need to insert a new one.
+            if form_product_variant.product_variant.variant_id.is_none() {
+                diesel::insert_into(variants::dsl::variants)
+                    .values(form_product_variant.variant)
+                    .execute(conn)?;
+
+                let last_variant_id: i32 =
+                        diesel::select(last_insert_rowid).first(conn)?;
+
+                form_product_variant.product_variant.variant_id = Some(last_variant_id);            
+            }
+            // We have an id, so we should update the variant product.
+            if let Some(product_variant_id) = form_product_variant.product_variant.id {
+                diesel::update(products_variants.find(product_variant_id))
+                    .set(&form_product_variant.product_variant)
+                    .execute(conn)?;
+            }
+        }
+
+        Ok(product_id)
+    })
 }
 //-------------------------------tests------------------
 // impl<T: Display> Display for Complex<T> {
@@ -502,6 +545,83 @@ fn show_product_test() {
                     ]
                 )
             ).unwrap()
+        );
+
+        Ok(())
+    });
+  }
+
+  //
+
+
+#[test]
+fn search_products_test() {
+    let connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|| {
+        let variants = vec![
+            NewVariantValue {
+                variant: NewVariant {
+                    name: "size".to_string()
+                },
+                values: vec![
+                    Some(12.to_string()),
+                ]
+            }
+        ];
+
+        create_product(NewCompleteProduct {
+            product: NewProduct {
+                name: "boots".to_string(),
+                cost: 13.23,
+                active: true
+            },
+            variants: variants.clone()
+        }, &connection).unwrap();
+        create_product(NewCompleteProduct {
+            product: NewProduct {
+                name: "high heels".to_string(),
+                cost: 20.99,
+                active: true
+            },
+            variants: variants.clone()
+        }, &connection).unwrap();
+        create_product(NewCompleteProduct {
+            product: NewProduct {
+                name: "running shoes".to_string(),
+                cost: 10.99,
+                active: true
+            },
+            variants: variants.clone()
+        }, &connection).unwrap();
+
+        assert_eq!(
+            serde_json::to_string(&search_products("shoes".to_string(), &connection).unwrap()).unwrap(),
+            serde_json::to_string(&vec![
+                (
+                    Product {
+                        id: 3,
+                        name: "running shoes".to_string(),
+                        cost: 10.99,
+                        active: true
+                    },
+                    vec![
+                        (
+                            ProductVariant {
+                                id: 3,
+                                variant_id: 1,
+                                product_id: 3,
+                                value: Some(
+                                    "12".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        )
+                    ]
+                )
+            ]).unwrap()
         );
 
         Ok(())
