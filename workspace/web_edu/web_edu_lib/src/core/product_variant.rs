@@ -7,7 +7,7 @@ pub mod create_product{
     use anyhow::Result;
     use diesel::sqlite::SqliteConnection;
     use diesel::ExpressionMethods;
-    use ::web_edu_model_product::models::*;
+    use ::web_edu_model_product::models::*;//web_edu_model_variant
     use diesel::Connection;
     use diesel::RunQueryDsl;
     use diesel::query_dsl::QueryDsl;
@@ -107,6 +107,7 @@ fn create_product_test() {
             ]
         }, &connection).unwrap();
 
+        // The function list_products is created to list the last products with their variants.
         assert_eq!(
             serde_json::to_string(&list_products(&connection).unwrap()).unwrap(),
             serde_json::to_string(&vec![

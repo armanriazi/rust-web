@@ -6,10 +6,17 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+
+[[bin]]
+doc = true
+name = "web_edu_main"
+path = "src/web_edu_main.rs"
+
 [dependencies]
 web_edu_model = { path = "../web_edu_model",  optional = false , default-features = true}
 web_edu_lib = { path = "../web_edu_lib",  optional = false , default-features = true}
-
+serde = { version = "1.0", features = ["derive"], optional = true , default-features = true}
+serde_json="1.0.0"
 
 [dev-dependencies]
 diesel = "2.0.2"

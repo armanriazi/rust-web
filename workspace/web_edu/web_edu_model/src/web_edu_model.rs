@@ -20,12 +20,24 @@ pub mod models {
     pub mod web_edu_model_product {
         use diesel::Insertable;
         use web_edu::schema::*;
+        //
+        use serde::{Serialize, Deserialize};
+        use diesel::Queryable;
+
         /// This struct will be our model for inserting data in our database. 
         /// Therefore, we need it to be Insertable, We also need to give it the name of our table.
         /// We’re now prepared to add the code corresponding to creating a products table.
         #[derive(Insertable, Debug)]
         #[table_name="products"]
         pub struct NewProduct {
+            pub name: String,
+            pub cost: f64,
+            pub active: bool,
+        }
+
+        #[derive(Queryable, Debug, Serialize, Deserialize)]
+        pub struct Product {
+            pub id: i32,
             pub name: String,
             pub cost: f64,
             pub active: bool,

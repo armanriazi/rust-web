@@ -1,7 +1,7 @@
 #![crate_name = "rust_web"]
 #![allow(dead_code, unused_variables)]
 
-#![doc(html_logo_url = "https://armanriazi.github.io/site/assets/attachments/me.png")]
+//#![doc(html_logo_url = "https://armanriazi.github.io/site/assets/attachments/me.png")]
 
 
 /// Main
@@ -29,13 +29,8 @@
 /// `nothing`
 ///
 /// ## Example
-/// ```rust,compile_fail,ignore
-/// #[allow(dead_code)]
-/// fn m(){
-///     core::panicking::panic!("in crash");
-///     unimplemented!()
-/// }
-/// ```
+/// //```rust,compile_fail,ignore
+
 
 #[cfg(panic = "unwind")]
 #[cfg(target_family = "unix")]
