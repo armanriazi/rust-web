@@ -131,8 +131,8 @@ fn show_product_variant(id: i32, conn: &SqliteConnection) -> Result<(Product, Ve
 
 
 fn search_products(search: String, conn: &SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
-    use ::shoe_store::schema::products::dsl::*;
-    use ::shoe_store::schema::variants::dsl::variants;
+    use ::web_edu::schema::products::dsl::*;
+    use ::web_edu::schema::variants::dsl::variants;
 
     let pattern = format!("%{}%", search);
     let products_result = 
@@ -155,7 +155,9 @@ fn search_products(search: String, conn: &SqliteConnection) -> Result<Vec<(Produ
 ///We check if product_variant has an id so we can find out if we need to update a found record or create a new one.
 
 fn update_product(product_id: i32, form_product: FormProduct, conn: &SqliteConnection) -> Result<i32> {
-
+    use ::web_edu::schema::products::dsl::products;
+    use ::web_edu::schema::variants;
+    use ::web_edu::schema::products_variants::dsl::products_variants;
     // We begin a transaction, just to make sure everything runs successfully
     conn.transaction(|| {
         diesel::update(products.find(product_id))
@@ -186,6 +188,15 @@ fn update_product(product_id: i32, form_product: FormProduct, conn: &SqliteConne
         Ok(product_id)
     })
 }
+
+fn delete_product(id: i32, conn: &SqliteConnection) ->  Result<i32> {    
+    use ::web_edu::schema::products::dsl::products;
+    diesel::delete(products.find(id))
+        .execute(conn)?;
+
+    Ok(id)
+}
+
 //-------------------------------tests------------------
 // impl<T: Display> Display for Complex<T> {
 //     fn fmt(&self, f: &mut Formatter) -> Result {
@@ -201,6 +212,11 @@ use diesel::result::Error;
 use diesel::Connection;
 use ::web_edu::connection::establish_connection_test;
 use ::web_edu_model::models::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
+//
+// use ::web_edu::schema::products_variants::dsl::*;
+// use ::web_edu::schema::products::dsl::*;
+// use ::web_edu::schema::variants;
+//
 
 fn index_list_products(conn: &SqliteConnection) -> Vec<Product> {
     use ::web_edu::schema::products::dsl::*;
@@ -214,6 +230,8 @@ fn index_list_products(conn: &SqliteConnection) -> Vec<Product> {
 
 #[test]
 fn test_index_list_products() {
+    use ::web_edu::schema::products::dsl::products;
+
     let connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|| {
         create_product(NewProduct {
@@ -263,6 +281,9 @@ fn test_index_list_products() {
 
 #[test]
 fn test_list_products_variants() {
+    use ::web_edu::schema::products::dsl::products;
+    use ::web_edu::schema::variants::dsl::variants;
+
     let connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|| {
         let variants = vec![
@@ -451,6 +472,8 @@ fn show_product_test() {
 
 #[test]
 fn show_product_test() {
+    use ::web_edu::schema::products::dsl::products;
+    use ::web_edu::schema::variants::dsl::variants;
 
     let connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|| {
@@ -557,6 +580,9 @@ fn show_product_test() {
 
 #[test]
 fn search_products_test() {
+    use ::web_edu::schema::products::dsl::*;
+    use ::web_edu::schema::variants::dsl::variants;
+
     let connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|| {
         let variants = vec![
@@ -634,7 +660,9 @@ fn search_products_test() {
 
 #[test]
 fn update_product_test() {
-    use ::shoe_store::schema::products_variants::dsl::*;
+    use ::web_edu::schema::products::dsl::products;
+    use ::web_edu::schema::variants;
+    use ::web_edu::schema::products_variants::dsl::products_variants;
 
     let connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|| {
@@ -700,7 +728,6 @@ fn update_product_test() {
                             variant_id: Some(product_variant.variant_id),
                             value: Some(50.to_string())
                         }
-
                     }
                 ]
             },
@@ -792,6 +819,48 @@ fn update_product_test() {
                 )
             ).unwrap()
         );
+
+        Ok(())
+    });
+  }
+
+  //
+
+#[test]
+#[should_panic(expected = "NotFound")]
+fn delete_product_test() {
+    use ::web_edu::schema::products_variants::dsl::products_variants;
+    let connection = establish_connection_test();
+    connection.execute("PRAGMA foreign_keys = ON").unwrap();
+    connection.test_transaction::<_, Error, _>(|| {
+        let created_product_id =
+            create_product(NewCompleteProduct {
+                product: NewProduct {
+                    name: "boots".to_string(),
+                    cost: 13.23,
+                    active: true
+                },
+                variants: vec![
+                    NewVariantValue {
+                        variant: NewVariant {
+                            name: "size".to_string()
+                        },
+                        values: vec![
+                            Some(12.to_string()),
+                            Some(14.to_string()),
+                            Some(16.to_string()),
+                            Some(18.to_string())
+                        ]
+                    }
+                ]
+            }, 
+            &connection).unwrap();
+        
+        delete_product(created_product_id, &connection).unwrap();
+
+        let vec_product_variants = products_variants.load::<ProductVariant>(&connection)?;
+        assert_eq!(vec_product_variants, vec![]);
+        show_product(created_product_id, &connection).unwrap();
 
         Ok(())
     });

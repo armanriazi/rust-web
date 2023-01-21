@@ -42,7 +42,10 @@ We need to specify the database_url to create the testing database.
 diesel setup --database-url='web_edu_test.sqlite
 ```
 
-### Migration
+## Migration
+
+
+### Migration Create Products
 
 ```
 diesel migration generate create_products
@@ -52,7 +55,7 @@ The previous command will create two files named up.sql and down.sql inside the 
 
 We’ll enter the below code in the up.sql file.
 
-```
+```sql
 CREATE TABLE products (
   id INTEGER PRIMARY KEY,
   name VARCHAR NOT NULL,
@@ -70,13 +73,15 @@ diesel migration run
 ```
 ---
 
+### Migration Product Variants
+
 Next:
 We need to create another table to save shoe variants.
 ```
 diesel migration generate create_variants
 ```
 Below is how the up.sql file will look.
-```
+```sql
 CREATE TABLE variants (
    id INTEGER PRIMARY KEY NOT NULL, 
    name VARCHAR NOT NULL
@@ -96,8 +101,35 @@ Below is how the down.sql file.
 drop table variants;
 drop table products_variants;
 ```
+
+### Migration For Test DB
 We did not include indexes in the above code widgets, but you should do so according to your frequent queries. Next, we run the migrations.
 ```
 diesel migration run
 diesel migration run --database-url='db/web_edu_test.sqlite'
+```
+
+### Migration For Edit Form
+
+The delete method is easier to implement. However, we should make some modifications in our SQL first. We open the up.sql file and update it with the below commands.
+The clause ON DELETE CASCADE will allow us to delete the relations with variants every time we delete a product.
+```sql
+CREATE TABLE products_variants (
+   id INTEGER PRIMARY KEY NOT NULL, 
+   variant_id INTEGER NOT NULL,
+   product_id INTEGER NOT NULL,
+   value VARCHAR,
+   FOREIGN KEY(variant_id) REFERENCES variants(id) ON DELETE CASCADE,
+   FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+```
+Notice(In code): 
+We need to be aware that SQLite does not enforce foreign keys, so we need to tell the database with the following command: 
+```
+connection.execute("PRAGMA foreign_keys = ON").unwrap();
+```
+We can see a couple of interesting lines in this test. First, we have the annotation #[should_panic(expected = "NotFound")]We use this annotation to tell Rust that this test should effectively panic. This will happen when we try to show an inexistent product and unwrap an Err result.
+
+```
+#[should_panic(expected = "NotFound")]
 ```
