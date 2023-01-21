@@ -56,8 +56,8 @@ use diesel::RunQueryDsl;
 use ::shared::connection::establish_connection;
 use diesel::sqlite::SqliteConnection;
 use diesel::result::Error;
-use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl};
-use ::web_edu_model::models::{Product, ProductVariant, Variant};
+use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
+use ::web_edu_model::models::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
 
 fn main() {
     println!("The products are: {:#?}", index_list_products());
@@ -93,6 +93,55 @@ fn list_products_variants(conn: &SqliteConnection) -> Result<Vec<(Product, Vec<(
 }
 
 
+
+fn show_product(id: i32, conn: &SqliteConnection) -> Result<Product, Error> {
+    use ::web_edu::schema::products::dsl::products;
+
+    products
+        .find(id)
+        .first(conn)
+}
+
+
+/// We use get_result instead of first because the return type has the trait BelongingToDsl implemented.
+/// We use the belonging_to function in the ProductVariant struct because we use a foreign key, and Diesel automatically assigns the required trait for the association.
+fn show_product_variant(id: i32, conn: &SqliteConnection) -> Result<(Product, Vec<(ProductVariant, Variant)>), Error> {
+    use ::web_edu::schema::products::dsl::products;
+    use ::web_edu::schema::variants::dsl::variants;
+
+    let product_result =
+        products
+            .find(id)
+            .get_result::<Product>(conn)?;
+
+    let variants_result =
+        ProductVariant::belonging_to(&product_result)
+            .inner_join(variants)
+            .load::<(ProductVariant, Variant)>(conn)?;
+
+    Ok((product_result, variants_result))
+}
+
+
+
+fn search_products(search: String, conn: &SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
+    use ::shoe_store::schema::products::dsl::*;
+    use ::shoe_store::schema::variants::dsl::variants;
+
+    let pattern = format!("%{}%", search);
+    let products_result = 
+        products
+        .filter(name.like(pattern))
+        .load::<Product>(conn)?;
+    let variants_result =
+        ProductVariant::belonging_to(&products_result)
+            .inner_join(variants)
+            .load::<(ProductVariant, Variant)>(conn)?
+            .grouped_by(&products_result);
+    let data = products_result.into_iter().zip(variants_result).collect::<Vec<_>>();
+
+    Ok(data)
+}
 //-------------------------------tests------------------
 // impl<T: Display> Display for Complex<T> {
 //     fn fmt(&self, f: &mut Formatter) -> Result {
@@ -104,7 +153,10 @@ mod tests {
 use super::*;
 use diesel::query_dsl::QueryDsl;
 use diesel::RunQueryDsl;
-use ::web_edu_model::models::*;
+use diesel::result::Error;
+use diesel::Connection;
+use ::web_edu::connection::establish_connection_test;
+use ::web_edu_model::models::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
 
 fn index_list_products(conn: &SqliteConnection) -> Vec<Product> {
     use ::web_edu::schema::products::dsl::*;
@@ -114,9 +166,7 @@ fn index_list_products(conn: &SqliteConnection) -> Vec<Product> {
         .expect("Error loading products")
 }
 
-use diesel::result::Error;
-use diesel::Connection;
-use ::web_edu::connection::establish_connection_test;
+
 
 #[test]
 fn test_index_list_products() {
@@ -304,6 +354,157 @@ fn test_list_products_variants() {
 
         Ok(())
 
+    });
+  }
+
+
+
+
+#[test]
+fn show_product_test() {
+
+    let connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|| {
+        let product_id =
+            create_product(NewCompleteProduct {
+                product: NewProduct {
+                    name: "boots".to_string(),
+                    cost: 13.23,
+                    active: true
+                },
+                variants: vec![
+                    NewVariantValue {
+                        variant: NewVariant {
+                            name: "size".to_string()
+                        },
+                        values: vec![
+                            Some(12.to_string()),
+                            Some(14.to_string()),
+                            Some(16.to_string()),
+                            Some(18.to_string())
+                        ]
+                    }
+                ]
+            }, &connection).unwrap();
+
+        assert_eq!(
+            serde_json::to_string(&show_product(product_id, &connection).unwrap()).unwrap(),
+            serde_json::to_string(
+                &Product {
+                    id: 1,
+                    name: "boots".to_string(),
+                    cost: 13.23,
+                    active: true
+                }
+            ).unwrap()
+        );
+
+        Ok(())
+    });
+  }
+  
+  //
+
+#[test]
+fn show_product_test() {
+
+    let connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|| {
+        let product_id =
+            create_product(NewCompleteProduct {
+                product: NewProduct {
+                    name: "boots".to_string(),
+                    cost: 13.23,
+                    active: true
+                },
+                variants: vec![
+                    NewVariantValue {
+                        variant: NewVariant {
+                            name: "size".to_string()
+                        },
+                        values: vec![
+                            Some(12.to_string()),
+                            Some(14.to_string()),
+                            Some(16.to_string()),
+                            Some(18.to_string())
+                        ]
+                    }
+                ]
+            }, &connection).unwrap();
+
+        assert_eq!(
+            serde_json::to_string(&show_product_variant(product_id, &connection).unwrap()).unwrap(),
+            serde_json::to_string(
+                &(
+                    Product {
+                        id: 1,
+                        name: "boots".to_string(),
+                        cost: 13.23,
+                        active: true
+                    },
+                    vec![
+                        (
+                            ProductVariant {
+                                id: 1,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "12".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        ),
+                        (
+                            ProductVariant {
+                                id: 2,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "14".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        ),
+                        (
+                            ProductVariant {
+                                id: 3,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "16".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        ),
+                        (
+                            ProductVariant {
+                                id: 4,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "18".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        )
+                    ]
+                )
+            ).unwrap()
+        );
+
+        Ok(())
     });
   }
 }
