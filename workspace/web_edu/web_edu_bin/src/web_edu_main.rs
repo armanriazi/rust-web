@@ -149,11 +149,12 @@ fn search_products(search: String, conn: &SqliteConnection) -> Result<Vec<(Produ
     Ok(data)
 }
 
+/// We start updating the product, then loop through the variants and check if the field variant_id from product_variant is none. If so, it means we have a new variant, 
+/// so we create and get the id. We add mut in the loop because we need to change the object later.
+///
+///We check if product_variant has an id so we can find out if we need to update a found record or create a new one.
 
 fn update_product(product_id: i32, form_product: FormProduct, conn: &SqliteConnection) -> Result<i32> {
-    use ::shoe_store::schema::products::dsl::products;
-    use ::shoe_store::schema::variants;
-    use ::shoe_store::schema::products_variants::dsl::products_variants;
 
     // We begin a transaction, just to make sure everything runs successfully
     conn.transaction(|| {
@@ -622,6 +623,174 @@ fn search_products_test() {
                     ]
                 )
             ]).unwrap()
+        );
+
+        Ok(())
+    });
+  }
+
+  //
+
+
+#[test]
+fn update_product_test() {
+    use ::shoe_store::schema::products_variants::dsl::*;
+
+    let connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|| {
+        let created_product_id =
+            create_product(NewCompleteProduct {
+                product: NewProduct {
+                    name: "boots".to_string(),
+                    cost: 13.23,
+                    active: true
+                },
+                variants: vec![
+                    NewVariantValue {
+                        variant: NewVariant {
+                            name: "size".to_string()
+                        },
+                        values: vec![
+                            Some(12.to_string()),
+                            Some(14.to_string()),
+                            Some(16.to_string()),
+                            Some(18.to_string())
+                        ]
+                    }
+                ]
+            }, &connection).unwrap();
+
+        let vec_product_variant =
+            products_variants
+                .filter(product_id.eq(created_product_id))
+                .load::<ProductVariant>(&connection)
+                .unwrap();
+
+        let product_variant =
+            vec_product_variant
+                .first()
+                .unwrap();
+
+        update_product(
+            created_product_id,
+            FormProduct {
+                product: NewProduct {
+                    name: "high heels".to_string(),
+                    cost: 14.25,
+                    active: false
+                },
+                variants: vec![
+                    FormProductVariantComplete {
+                        variant: Some(FormVariant {
+                            id: None,
+                            name: "color".to_string()
+                        }),
+                        product_variant: FormProductVariant {
+                            id: None,
+                            product_id: created_product_id,
+                            variant_id: None,
+                            value: Some("Blue".to_string())
+                        }
+                    },
+                    FormProductVariantComplete {
+                        variant: None,
+                        product_variant: FormProductVariant {
+                            id: Some(product_variant.id),
+                            product_id: created_product_id,
+                            variant_id: Some(product_variant.variant_id),
+                            value: Some(50.to_string())
+                        }
+
+                    }
+                ]
+            },
+            &connection
+        ).unwrap();
+        
+        assert_eq!(
+            serde_json::to_string(&show_product(created_product_id, &connection).unwrap()).unwrap(),
+            serde_json::to_string(
+                &(
+                    Product {
+                        id: 1,
+                        name: "high heels".to_string(),
+                        cost: 14.25,
+                        active: false
+                    },
+                    vec![
+                        (
+                            ProductVariant {
+                                id: 1,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "50".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        ),
+                        (
+                            ProductVariant {
+                                id: 2,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "14".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        ),
+                        (
+                            ProductVariant {
+                                id: 3,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "16".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        ),
+                        (
+                            ProductVariant {
+                                id: 4,
+                                variant_id: 1,
+                                product_id: 1,
+                                value: Some(
+                                    "18".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        ),
+                        (
+                            ProductVariant {
+                                id: 5,
+                                variant_id: 2,
+                                product_id: 1,
+                                value: Some(
+                                    "Blue".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 2,
+                                name: "color".to_string(),
+                            }
+                        )
+                    ]
+                )
+            ).unwrap()
         );
 
         Ok(())
