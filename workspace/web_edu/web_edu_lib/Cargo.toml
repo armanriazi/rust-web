@@ -7,6 +7,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+diesel = { version = "2.0.0", features = ["sqlite"] }
+dotenvy = "0.15"
 web_edu_model = { path = "../web_edu_model",  optional = false , default-features = true}
 shared = { path = "../../../shared",  optional = false , default-features = true}
 serde = { version = "1.0", features = ["derive"], optional = true , default-features = true}
