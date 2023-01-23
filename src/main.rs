@@ -1,4 +1,4 @@
-#![crate_name = "rust_web"]
+//#![crate_name = "rust_web"]
 #![allow(dead_code, unused_variables)]
 
 //#![doc(html_logo_url = "https://armanriazi.github.io/site/assets/attachments/me.png")]

@@ -16,4 +16,11 @@ serde_json="1.0.0"
 anyhow="1.0.68"
 
 [dev-dependencies]
-diesel = "2.0.2"
+proptest = "1"
+pretty_assertions = "1"
+
+[[test]]
+doc = true
+name = "integration_dep_test"
+path = "test/integration_dep_test.rs"
+test = true

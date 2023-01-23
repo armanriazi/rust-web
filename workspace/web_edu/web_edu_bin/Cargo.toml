@@ -19,6 +19,3 @@ web_edu_model = { path = "../web_edu_model",  optional = false , default-feature
 web_edu_lib = { path = "../web_edu_lib",  optional = false , default-features = true}
 serde = { version = "1.0", features = ["derive"], optional = true , default-features = true}
 serde_json="1.0.0"
-
-[dev-dependencies]
-diesel = "2.0.2"
