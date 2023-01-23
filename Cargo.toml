@@ -14,7 +14,6 @@ members = [
 
     "workspace/web_edu/web_edu_bin",
     "workspace/web_edu/web_edu_lib",
-    "workspace/web_edu/web_edu_model",
     "workspace/web_edu/web_edu_test",
 
 ]

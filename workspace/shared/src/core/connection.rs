@@ -1,22 +1,20 @@
-#[macro_use]
-extern crate diesel;
-extern crate dotenv;
-extern crate serde;
-extern crate serde_json;
-
-pub mod schema;
-pub mod models;
-
-use diesel::prelude::*;
-use diesel::sqlite::SqliteConnection;
-// use diesel::mysql::MysqlConnection;
-//use diesel::pg::PgConnection;
-use dotenv::dotenv;
-use std::env;
 
 
+ #[macro_use]
+        extern crate diesel;
+        extern crate dotenv;
+        extern crate serde;
+        extern crate serde_json;
 //#[cfg(feature = "establish_connection")]
 pub mod establish_connection {
+
+        use diesel::prelude::*;
+        use diesel::sqlite::SqliteConnection;
+        // use diesel::mysql::MysqlConnection;
+        //use diesel::pg::PgConnection;
+        use dotenv::dotenv;
+        use std::env;
+
     pub fn establish_connection() -> SqliteConnection {
         dotenv().ok();
 
