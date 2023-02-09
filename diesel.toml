@@ -1,0 +1,8 @@
+# For documentation on how to configure this file,
+# see https://diesel.rs/guides/configuring-diesel-cli
+
+[print_schema]
+patch_file = "schema.patch"
+file = "workspace/web_edu/web_edu_lib/src/schema.rs"
+[migrations_directory]
+dir = "/workspaces/rust-web/workspace/web_edu/web_edu_setup/migrations"
