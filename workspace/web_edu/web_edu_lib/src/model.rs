@@ -31,9 +31,9 @@ pub mod model_product {
             pub cost: f64,
             pub active: bool,
         }
-        // This struct will be our model for inserting data in our database. 
-        // Therefore, we need it to be Insertable, We also need to give it the name of our table.
-        // We’re now prepared to add the code corresponding to creating a products table.
+        /// This struct will be our model for inserting data in our database. 
+        /// Therefore, we need it to be Insertable, We also need to give it the name of our table.
+        /// We’re now prepared to add the code corresponding to creating a products table.
         #[derive(Queryable, Debug, Serialize, Deserialize)]
         pub struct Product {
             pub id: i32,
@@ -104,4 +104,5 @@ pub mod model_product {
 //     }
 
 }
+
 

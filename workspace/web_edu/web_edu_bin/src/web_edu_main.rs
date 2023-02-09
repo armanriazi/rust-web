@@ -210,16 +210,16 @@ use diesel::query_dsl::QueryDsl;
 use diesel::RunQueryDsl;
 use diesel::result::Error;
 use diesel::Connection;
-use ::web_edu::connection::establish_connection_test;
-use ::web_edu_model::models::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
-//
+use ::web_edu_lib::core::connection::establish_connection_test;
+use ::web_edu_lib::model::model::model_product::{Product, NewProduct};
+//use ::web_edu_lib::model::model::model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
 // use ::web_edu::schema::products_variants::dsl::*;
 // use ::web_edu::schema::products::dsl::*;
 // use ::web_edu::schema::variants;
 //
 
-fn index_list_products(conn: &SqliteConnection) -> Vec<Product> {
-    use ::web_edu::schema::products::dsl::*;
+fn index_list_products(conn: &mut SqliteConnection) -> Vec<Product> {
+    use ::web_edu_lib::schema::products::dsl::*;
     products
         .limit(10)
         .load::<Product>(conn)
@@ -230,10 +230,10 @@ fn index_list_products(conn: &SqliteConnection) -> Vec<Product> {
 
 #[test]
 fn test_index_list_products() {
-    use ::web_edu::schema::products::dsl::products;
+    use ::web_edu_lib::schema::products::dsl::products;
 
-    let connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|| {
+    let mut connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|connection| {
         create_product(NewProduct {
             name: "boots".to_string(),
             cost: 13.23,
@@ -250,7 +250,7 @@ fn test_index_list_products() {
             active: true
         }, &connection);
 
-        assert_eq!(serde_json::to_string(&index_list_products(&connection)).unwrap(), 
+        assert_eq!(serde_json::to_string(&index_list_products(&mut connection)).unwrap(), 
             serde_json::to_string(&vec![
                 Product {
                     id: 1,
@@ -281,8 +281,8 @@ fn test_index_list_products() {
 
 #[test]
 fn test_list_products_variants() {
-    use ::web_edu::schema::products::dsl::products;
-    use ::web_edu::schema::variants::dsl::variants;
+    use ::web_edu_lib::schema::products::dsl::products;
+    use ::web_edu_lib::schema::variants::dsl::variants;
 
     let connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|| {
