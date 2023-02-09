@@ -472,8 +472,9 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 name = "web_edu_bin"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "diesel",
- "dotenvy",
+ "dotenv",
  "serde",
  "serde_json",
  "web_edu_lib",
@@ -484,8 +485,10 @@ name = "web_edu_lib"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "cfg-if",
  "diesel",
  "dotenv",
+ "dotenvy",
  "pretty_assertions",
  "proptest",
  "serde",

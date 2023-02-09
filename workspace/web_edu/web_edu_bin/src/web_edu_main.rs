@@ -9,7 +9,7 @@
 ///
 /// ```cargo doc  --workspace --message-format short --no-deps --open --color always```
 ///
-/// ```cargo check --workspace --message-format=json --all-targets```
+/// ```cargo check --workspace --message-format=short --all-targets```
 ///
 /// ```cargo test --doc  --workspace```
 ///
@@ -53,14 +53,14 @@
 
 #[macro_use]
 extern crate diesel; // imported due to form edit include update, delete
-use ::shared::connection::establish_connection;
+use web_edu_lib::connection::connection::establish_connection;
 use diesel::sqlite::SqliteConnection;
 use diesel::result::Error;
 use anyhow::Result;
 use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
-use ::web_edu_model::models::web_edu_model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
-use ::web_edu_model::models::web_edu_model_product_variant::{NewProductVariant};
-use ::web_edu_model::models::web_edu_model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
+use ::web_edu_lib::models::web_edu_model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
+use ::web_edu_lib::models::web_edu_model_product_variant::{NewProductVariant};
+use ::web_edu_lib::models::web_edu_model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
 
 no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);// imported due to form edit include update, delete
 
