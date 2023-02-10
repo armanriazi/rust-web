@@ -2,6 +2,6 @@
 # see https://diesel.rs/guides/configuring-diesel-cli
 
 [print_schema]
-file = "workspace/rust-web/workspace/web_edu/web_edu_lib/src/schema.rs"
+file = "workspace/web_edu/web_edu_lib/src/schema.rs"
 [migrations_directory]
-dir = "workspace/rust-web/workspace/web_edu/web_edu_setup/migrations"
+dir = "workspace/web_edu/web_edu_setup/migrations"

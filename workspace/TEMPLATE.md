@@ -30,3 +30,4 @@ packtpub-string-bin-ex-1
  //```rust,compile_fail,ignore
 */
 ```
+
