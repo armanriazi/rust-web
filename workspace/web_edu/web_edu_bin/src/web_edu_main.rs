@@ -53,14 +53,15 @@
 
 #[macro_use]
 extern crate diesel; // imported due to form edit include update, delete
-use web_edu_lib::connection::connection::establish_connection;
+use web_edu_lib::core::connection::establish_connection;
 use diesel::sqlite::SqliteConnection;
 use diesel::result::Error;
 use anyhow::Result;
 use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
-use ::web_edu_lib::models::web_edu_model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
-use ::web_edu_lib::models::web_edu_model_product_variant::{NewProductVariant};
-use ::web_edu_lib::models::web_edu_model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
+use ::web_edu_lib::model::model::model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
+use ::web_edu_lib::model::model::model_product_variant::{NewVariant,Variant};
+//use ::web_edu_lib::model::model::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
+use web_edu_lib::schema::{products, self};
 
 no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);// imported due to form edit include update, delete
 
@@ -71,18 +72,18 @@ fn main() {
 }
 
 fn index_list_products() -> Vec<Product> {
-    use ::web_edu::schema::products::dsl::*;
-    let connection = establish_connection();
+    use schema::products::dsl::*;
+    let mut connection = establish_connection();
     products
         .limit(10)
-        .load::<Product>(&connection)
+        .load::<Product>(connection)
         .expect("Error loading products")
 }
 
 
-fn list_products_variants(conn: &SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
-    use ::web_edu::schema::products::dsl::products;
-    use ::web_edu::schema::variants::dsl::variants;
+fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
+    use ::web_edu_lib::schema::products::dsl::products;
+    use ::web_edu_lib::schema::variants::dsl::variants;
 
     let products_result = 
         products
@@ -101,7 +102,7 @@ fn list_products_variants(conn: &SqliteConnection) -> Result<Vec<(Product, Vec<(
 
 
 fn show_product(id: i32, conn: &SqliteConnection) -> Result<Product, Error> {
-    use ::web_edu::schema::products::dsl::products;
+    use ::web_edu_lib::schema::products::dsl::products;
 
     products
         .find(id)
@@ -111,9 +112,9 @@ fn show_product(id: i32, conn: &SqliteConnection) -> Result<Product, Error> {
 
 /// We use get_result instead of first because the return type has the trait BelongingToDsl implemented.
 /// We use the belonging_to function in the ProductVariant struct because we use a foreign key, and Diesel automatically assigns the required trait for the association.
-fn show_product_variant(id: i32, conn: &SqliteConnection) -> Result<(Product, Vec<(ProductVariant, Variant)>), Error> {
-    use ::web_edu::schema::products::dsl::products;
-    use ::web_edu::schema::variants::dsl::variants;
+fn show_product_variant(id: i32, conn: &mut SqliteConnection) -> Result<(Product, Vec<(ProductVariant, Variant)>), Error> {
+    use ::web_edu_lib::schema::products::dsl::products;
+    use ::web_edu_lib::schema::variants::dsl::variants;
 
     let product_result =
         products
@@ -130,9 +131,9 @@ fn show_product_variant(id: i32, conn: &SqliteConnection) -> Result<(Product, Ve
 
 
 
-fn search_products(search: String, conn: &SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
-    use ::web_edu::schema::products::dsl::*;
-    use ::web_edu::schema::variants::dsl::variants;
+fn search_products(search: String, conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
+    use ::web_edu_lib::schema::products::dsl::*;
+    use ::web_edu_lib::schema::variants::dsl::variants;
 
     let pattern = format!("%{}%", search);
     let products_result = 
@@ -154,12 +155,13 @@ fn search_products(search: String, conn: &SqliteConnection) -> Result<Vec<(Produ
 ///
 ///We check if product_variant has an id so we can find out if we need to update a found record or create a new one.
 
-fn update_product(product_id: i32, form_product: FormProduct, conn: &SqliteConnection) -> Result<i32> {
-    use ::web_edu::schema::products::dsl::products;
-    use ::web_edu::schema::variants;
-    use ::web_edu::schema::products_variants::dsl::products_variants;
+/*
+fn update_product(product_id: i32, form_product: FormProduct, conn: &mut SqliteConnection) -> Result<i32> {
+    use ::web_edu_lib::schema::products::dsl::products;
+    use ::web_edu_lib::schema::variants;
+    use ::web_edu_lib::schema::products_variants::dsl::products_variants;
     // We begin a transaction, just to make sure everything runs successfully
-    conn.transaction(|| {
+    conn.transaction(|conn| {
         diesel::update(products.find(product_id))
             .set(&form_product.product)
             .execute(conn)?;
@@ -196,7 +198,7 @@ fn delete_product(id: i32, conn: &SqliteConnection) ->  Result<i32> {
 
     Ok(id)
 }
-
+ */
 //-------------------------------tests------------------
 // impl<T: Display> Display for Complex<T> {
 //     fn fmt(&self, f: &mut Formatter) -> Result {
@@ -211,6 +213,7 @@ use diesel::RunQueryDsl;
 use diesel::result::Error;
 use diesel::Connection;
 use ::web_edu_lib::core::connection::establish_connection_test;
+use web_edu_lib::core::product::product::create_product;
 use ::web_edu_lib::model::model::model_product::{Product, NewProduct};
 //use ::web_edu_lib::model::model::model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
 // use ::web_edu::schema::products_variants::dsl::*;
@@ -238,17 +241,17 @@ fn test_index_list_products() {
             name: "boots".to_string(),
             cost: 13.23,
             active: true
-        }, &connection);
+        }, connection);
         create_product(NewProduct {
             name: "high heels".to_string(),
             cost: 20.99,
             active: true
-        }, &connection);
+        }, connection);
         create_product(NewProduct {
             name: "running shoes".to_string(),
             cost: 10.99,
             active: true
-        }, &connection);
+        }, connection);
 
         assert_eq!(serde_json::to_string(&index_list_products(&mut connection)).unwrap(), 
             serde_json::to_string(&vec![
@@ -284,7 +287,7 @@ fn test_list_products_variants() {
     use ::web_edu_lib::schema::products::dsl::products;
     use ::web_edu_lib::schema::variants::dsl::variants;
 
-    let connection = establish_connection_test();
+    let mut connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|| {
         let variants = vec![
             NewVariantValue {
@@ -307,7 +310,7 @@ fn test_list_products_variants() {
                 active: true
             },
             variants: variants.clone()
-        }, &connection).unwrap();
+        }, connection).unwrap();
         create_product(NewCompleteProduct {
             product: NewProduct {
                 name: "high heels".to_string(),
@@ -315,7 +318,7 @@ fn test_list_products_variants() {
                 active: true
             },
             variants: variants.clone()
-        }, &connection).unwrap();
+        }, connection).unwrap();
         create_product(NewCompleteProduct {
             product: NewProduct {
                 name: "running shoes".to_string(),
@@ -323,7 +326,7 @@ fn test_list_products_variants() {
                 active: true
             },
             variants: variants.clone()
-        }, &connection).unwrap();
+        }, connection).unwrap();
 
         let variants_result = |start_id, for_product_id| {
             vec![
@@ -386,7 +389,7 @@ fn test_list_products_variants() {
             ]
         };
 
-        assert_eq!(serde_json::to_string(&list_products_variants(&connection).unwrap()).unwrap(), 
+        assert_eq!(serde_json::to_string(&list_products_variants(&mut connection).unwrap()).unwrap(), 
             serde_json::to_string(&vec![
                 (
                     Product {
@@ -428,8 +431,8 @@ fn test_list_products_variants() {
 #[test]
 fn show_product_test() {
 
-    let connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|| {
+    let mut connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|connection| {
         let product_id =
             create_product(NewCompleteProduct {
                 product: NewProduct {
@@ -450,10 +453,10 @@ fn show_product_test() {
                         ]
                     }
                 ]
-            }, &connection).unwrap();
+            }, connection).unwrap();
 
         assert_eq!(
-            serde_json::to_string(&show_product(product_id, &connection).unwrap()).unwrap(),
+            serde_json::to_string(&show_product(product_id.try_into().unwrap(), &connection).unwrap()).unwrap(),
             serde_json::to_string(
                 &Product {
                     id: 1,
@@ -472,11 +475,11 @@ fn show_product_test() {
 
 #[test]
 fn show_product_test() {
-    use ::web_edu::schema::products::dsl::products;
-    use ::web_edu::schema::variants::dsl::variants;
+    use ::web_edu_lib::schema::products::dsl::products;
+    use ::web_edu_lib::schema::variants::dsl::variants;
 
-    let connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|| {
+    let mut connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|connection| {
         let product_id =
             create_product(NewCompleteProduct {
                 product: NewProduct {
@@ -497,10 +500,10 @@ fn show_product_test() {
                         ]
                     }
                 ]
-            }, &connection).unwrap();
+            }, connection).unwrap();
 
         assert_eq!(
-            serde_json::to_string(&show_product_variant(product_id, &connection).unwrap()).unwrap(),
+            serde_json::to_string(&show_product_variant(product_id, &mut connection).unwrap()).unwrap(),
             serde_json::to_string(
                 &(
                     Product {
@@ -580,11 +583,11 @@ fn show_product_test() {
 
 #[test]
 fn search_products_test() {
-    use ::web_edu::schema::products::dsl::*;
-    use ::web_edu::schema::variants::dsl::variants;
+    use ::web_edu_lib::schema::products::dsl::*;
+    use ::web_edu_lib::schema::variants::dsl::variants;
 
-    let connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|| {
+    let mut connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|connection| {
         let variants = vec![
             NewVariantValue {
                 variant: NewVariant {
@@ -603,7 +606,7 @@ fn search_products_test() {
                 active: true
             },
             variants: variants.clone()
-        }, &connection).unwrap();
+        }, connection).unwrap();
         create_product(NewCompleteProduct {
             product: NewProduct {
                 name: "high heels".to_string(),
@@ -611,7 +614,7 @@ fn search_products_test() {
                 active: true
             },
             variants: variants.clone()
-        }, &connection).unwrap();
+        }, connection).unwrap();
         create_product(NewCompleteProduct {
             product: NewProduct {
                 name: "running shoes".to_string(),
@@ -619,10 +622,10 @@ fn search_products_test() {
                 active: true
             },
             variants: variants.clone()
-        }, &connection).unwrap();
+        }, connection).unwrap();
 
         assert_eq!(
-            serde_json::to_string(&search_products("shoes".to_string(), &connection).unwrap()).unwrap(),
+            serde_json::to_string(&search_products("shoes".to_string(), connection).unwrap()).unwrap(),
             serde_json::to_string(&vec![
                 (
                     Product {
@@ -657,15 +660,15 @@ fn search_products_test() {
 
   //
 
-
+/*
 #[test]
 fn update_product_test() {
-    use ::web_edu::schema::products::dsl::products;
-    use ::web_edu::schema::variants;
-    use ::web_edu::schema::products_variants::dsl::products_variants;
+    use ::web_edu_lib::schema::products::dsl::products;
+    use ::web_edu_lib::schema::variants;
+    use ::web_edu_lib::schema::products_variants::dsl::products_variants;
 
-    let connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|| {
+    let mut connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|connection| {
         let created_product_id =
             create_product(NewCompleteProduct {
                 product: NewProduct {
@@ -686,7 +689,7 @@ fn update_product_test() {
                         ]
                     }
                 ]
-            }, &connection).unwrap();
+            }, connection).unwrap();
 
         let vec_product_variant =
             products_variants
@@ -865,4 +868,5 @@ fn delete_product_test() {
         Ok(())
     });
   }
+*/
 }

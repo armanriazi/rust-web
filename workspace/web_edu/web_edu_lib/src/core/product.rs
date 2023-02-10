@@ -1,11 +1,11 @@
 
 
-pub mod create_product{
-use crate::model::model::model_product::NewProduct;
+pub mod product{
+use crate::model::model::model_product::{NewProduct, Product};
 use crate::schema;
 use diesel::sqlite::SqliteConnection;
 use diesel::result::Error;
-use diesel::RunQueryDsl;
+use diesel::{RunQueryDsl, QueryDsl};
 
 pub fn create_product(new_product: NewProduct, conn: &mut SqliteConnection) -> Result<usize, Error>  {
     use schema::products::dsl::*;
@@ -13,6 +13,7 @@ pub fn create_product(new_product: NewProduct, conn: &mut SqliteConnection) -> R
         .values(new_product)
         .execute(conn)
 }
+
 }
 
 #[cfg(test)]
@@ -21,7 +22,7 @@ mod tests {
 use diesel::result::Error;
 use diesel::Connection;
 use crate::core::connection::establish_connection_test;
-use crate::core::product::create_product::{create_product};
+use crate::core::product::product::{create_product};
 use crate::model::model::model_product::NewProduct;
 
 #[test]
