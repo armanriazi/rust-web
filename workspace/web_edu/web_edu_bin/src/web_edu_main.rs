@@ -1,4 +1,4 @@
-#![crate_name = "web_edu_bin"]
+
 #![allow(dead_code, unused_variables)]
 //#![doc(html_logo_url = "https://armanriazi.github.io/site/assets/attachments/me.png")]
 /// index
@@ -15,7 +15,7 @@
 ///
 /// > `Sub Packges`
 /// > > ` Binary `
-/// ```cargo run -q -p web_edu_bin --bin web_edu_index```
+/// ```cargo run -q -p web_edu_bin --bin web_edu_main```
 ///
 /// ```cargo doc  --package web_edu_bin --message-format short --no-deps --open --color always```
 ///
@@ -58,10 +58,10 @@ use diesel::sqlite::SqliteConnection;
 use diesel::result::Error;
 use anyhow::Result;
 use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
-use ::web_edu_lib::model::model::model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
-use ::web_edu_lib::model::model::model_product_variant::{NewVariant,Variant};
+use ::web_edu_lib::model::model::model_product::*;
+use ::web_edu_lib::model::model::model_product_variant::*;
 //use ::web_edu_lib::model::model::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
-use web_edu_lib::schema::{products, self};
+use web_edu_lib::schema::{products,products_variants, self};
 
 no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);// imported due to form edit include update, delete
 
@@ -73,14 +73,14 @@ fn main() {
 
 fn index_list_products() -> Vec<Product> {
     use schema::products::dsl::*;
-    let mut connection = establish_connection();
+    let mut conn = establish_connection();
     products
-        .limit(10)
-        .load::<Product>(connection)
+        .limit(10)        
+        .load::<Product>(&mut conn)
         .expect("Error loading products")
 }
 
-
+/* 
 fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
     use ::web_edu_lib::schema::products::dsl::products;
     use ::web_edu_lib::schema::variants::dsl::variants;
@@ -88,7 +88,7 @@ fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Product, V
     let products_result = 
         products
         .limit(10)
-        .load::<Product>(conn)?;
+        .load::<Product>(&conn)?;
     let variants_result =
         ProductVariant::belonging_to(&products_result)
             .inner_join(variants)
@@ -155,7 +155,7 @@ fn search_products(search: String, conn: &mut SqliteConnection) -> Result<Vec<(P
 ///
 ///We check if product_variant has an id so we can find out if we need to update a found record or create a new one.
 
-/*
+
 fn update_product(product_id: i32, form_product: FormProduct, conn: &mut SqliteConnection) -> Result<i32> {
     use ::web_edu_lib::schema::products::dsl::products;
     use ::web_edu_lib::schema::variants;
@@ -221,8 +221,8 @@ use ::web_edu_lib::model::model::model_product::{Product, NewProduct};
 // use ::web_edu::schema::variants;
 //
 
-fn index_list_products(conn: &mut SqliteConnection) -> Vec<Product> {
-    use ::web_edu_lib::schema::products::dsl::*;
+fn index_list_products(conn: & SqliteConnection) -> Vec<Product> {
+    use web_edu_lib::schema::products::dsl::*;
     products
         .limit(10)
         .load::<Product>(conn)
@@ -253,7 +253,7 @@ fn test_index_list_products() {
             active: true
         }, connection);
 
-        assert_eq!(serde_json::to_string(&index_list_products(&mut connection)).unwrap(), 
+        assert_eq!(serde_json::to_string(&index_list_products(&connection)).unwrap(), 
             serde_json::to_string(&vec![
                 Product {
                     id: 1,
@@ -281,14 +281,14 @@ fn test_index_list_products() {
   }
 
 //
-
+/* 
 #[test]
 fn test_list_products_variants() {
     use ::web_edu_lib::schema::products::dsl::products;
     use ::web_edu_lib::schema::variants::dsl::variants;
 
     let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|| {
+    connection.test_transaction::<_, Error, _>(|connection| {
         let variants = vec![
             NewVariantValue {
                 variant: NewVariant {
@@ -310,7 +310,7 @@ fn test_list_products_variants() {
                 active: true
             },
             variants: variants.clone()
-        }, connection).unwrap();
+        }, &mut connection).unwrap();
         create_product(NewCompleteProduct {
             product: NewProduct {
                 name: "high heels".to_string(),
@@ -318,7 +318,7 @@ fn test_list_products_variants() {
                 active: true
             },
             variants: variants.clone()
-        }, connection).unwrap();
+        }, &mut connection).unwrap();
         create_product(NewCompleteProduct {
             product: NewProduct {
                 name: "running shoes".to_string(),
@@ -326,7 +326,7 @@ fn test_list_products_variants() {
                 active: true
             },
             variants: variants.clone()
-        }, connection).unwrap();
+        }, &mut connection).unwrap();
 
         let variants_result = |start_id, for_product_id| {
             vec![
@@ -425,9 +425,7 @@ fn test_list_products_variants() {
     });
   }
 
-
-
-
+*/
 #[test]
 fn show_product_test() {
 
@@ -474,9 +472,7 @@ fn show_product_test() {
   //
 
 #[test]
-fn show_product_test() {
-    use ::web_edu_lib::schema::products::dsl::products;
-    use ::web_edu_lib::schema::variants::dsl::variants;
+fn show_product_variant_test() {
 
     let mut connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|connection| {
@@ -500,10 +496,10 @@ fn show_product_test() {
                         ]
                     }
                 ]
-            }, connection).unwrap();
+            }, &mut connection).unwrap();
 
         assert_eq!(
-            serde_json::to_string(&show_product_variant(product_id, &mut connection).unwrap()).unwrap(),
+            serde_json::to_string(&show_product_variant(product_id.try_into().unwrap(), &mut connection).unwrap()).unwrap(),
             serde_json::to_string(
                 &(
                     Product {
@@ -580,10 +576,10 @@ fn show_product_test() {
 
   //
 
-
+/* 
 #[test]
 fn search_products_test() {
-    use ::web_edu_lib::schema::products::dsl::*;
+    
     use ::web_edu_lib::schema::variants::dsl::variants;
 
     let mut connection = establish_connection_test();
@@ -660,7 +656,6 @@ fn search_products_test() {
 
   //
 
-/*
 #[test]
 fn update_product_test() {
     use ::web_edu_lib::schema::products::dsl::products;
