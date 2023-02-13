@@ -14,5 +14,6 @@ exclude = '''
     | \.venv
     | \bdist\b
     | \bdoc\b
+    | \db
 )
 '''

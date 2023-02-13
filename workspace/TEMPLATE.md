@@ -3,6 +3,8 @@
 
 [RUST](rust/RUST.md)
 
+[DIESEL](rust/DIESEL.md)
+
 # Template
 ```
 /*

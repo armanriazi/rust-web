@@ -1,0 +1,15 @@
+[package]
+name = "web_r3"
+version = "0.1.0"
+edition = "2018"
+license = "MIT"
+keywords = [ "Parse","markdown"]
+description = "Read a markdown file and return a parsed html file"
+
+[dependencies]
+
+clap = "2.33.0"
+pulldown-cmark = "0.4.1"
+maud = "0.20.0"
+
+

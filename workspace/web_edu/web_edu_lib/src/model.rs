@@ -1,7 +1,7 @@
 pub mod model {
 
     use self::{model_product::NewProduct};
-    use self::model_product_variant::NewVariant;
+    use self::model_variant::NewVariant;
     
     /// We might need additional models that have a different purpose and that aren’t connected to a table for our business logic.
     #[derive(Clone)]
@@ -32,8 +32,8 @@ pub mod model_product {
             pub active: bool,
         }
 
-        /// We’re now prepared to add the code corresponding to creating a products table.
-        #[derive(Queryable, Debug, Serialize, Deserialize)]
+      #[derive(Identifiable, Queryable, Debug, Serialize, Deserialize)]
+        #[table_name="products"]
         pub struct Product {
             pub id: i32,
             pub name: String,
@@ -42,7 +42,7 @@ pub mod model_product {
         }
 }
 
-pub mod model_product_variant {
+pub mod model_variant {
         use crate::schema::*;
         use diesel::{Insertable, Identifiable,Queryable};        
         use serde::{Serialize, Deserialize};
@@ -61,17 +61,33 @@ pub mod model_product_variant {
         }
 }
 
-// pub mod model_product_variant {
-//         use crate::schema::*;
+pub mod model_product_variant {
+    use crate::schema::*;
+    use diesel::{Insertable, Identifiable,Queryable};        
+    use diesel::query_dsl::BelongingToDsl;
+    use crate::schema::products_variants;
+    use serde::{Serialize, Deserialize};
+    use crate::model::model::model_product::Product;
 
-//         #[derive(Insertable, Debug)]
-//         #[table_name="products_variants"]
-//         pub struct NewProductVariant {
-//             pub product_id: i32,
-//             pub variant_id: i32,
-//             pub value: Option<String>
-//         }
-//     }
+    #[derive(Insertable, Debug)]
+    #[table_name="products_variants"]
+    pub struct NewProductVariant {
+        pub product_id: i32,
+        pub variant_id: i32,
+        pub value: Option<String>
+    }
+  
+    #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize)]
+    #[belongs_to(Product)]
+    #[table_name="products_variants"]
+    pub struct ProductVariant {
+        pub id: i32,
+        pub product_id: i32,
+        pub variant_id: i32,
+        pub value: Option<String>
+    }
+   
+}
 
 //     pub mod model_product_edit {
 //         use super::model_product::NewProduct;

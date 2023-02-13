@@ -1,29 +1,35 @@
-
+/// we use the macro no_arg_sql_function!, which allows us to use an SQL function in our code. 
+/// In this case, SQLite does not have RETURNING for our inserts implemented.
+/// Therefore, we need a function called last_insert_rowid to get the last id inserted.
+// Note: We must be careful to use this function in a transaction.
+///```rust
+///no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);
+///```
+/// 
 pub mod product_variant{
 
     use crate::model::model::NewCompleteProduct;
-    use crate::schema;
+    use crate::model::model::model_product::Product;
+    use crate::model::model::model_variant::Variant;
+    use crate::schema::{self, variants, products,products_variants};
     use diesel::sqlite::SqliteConnection;
     use diesel::result::Error;
     use diesel::RunQueryDsl;
+    use diesel::BelongingToDsl;
     use anyhow::Result;    
     use diesel::ExpressionMethods;
     use crate::model::model::model_product_variant::*;
     use diesel::Connection;    
     use diesel::query_dsl::QueryDsl;
 
-    /// we use the macro no_arg_sql_function!, which allows us to use an SQL function in our code. 
-    /// In this case, SQLite does not have RETURNING for our inserts implemented.
-    /// Therefore, we need a function called last_insert_rowid to get the last id inserted.
-    // Note: We must be careful to use this function in a transaction.
     no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);
 
-    pub fn create_product_variant(new_product: NewCompleteProduct, conn: &mut SqliteConnection) -> Result<i32>  {
+    pub fn create_product_variant(new_product: NewCompleteProduct, conn: & SqliteConnection) -> Result<i32>  {
         use schema::products::dsl::products;
         use schema::variants::dsl::*;
         use schema::products_variants::dsl::*;
 
-        conn.transaction(|conn| {
+        conn.transaction(|| {
             diesel::insert_into(products)
                 .values(new_product.product)
                 .execute(conn)?;
@@ -69,6 +75,24 @@ pub mod product_variant{
     }
     
     
+pub fn list_products(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
+    use schema::products::dsl::*;
+    use schema::variants::dsl::*;
+    use schema::products_variants::dsl::*;
+
+    let products_result = 
+        products
+        .limit(10)
+        .load::<Product>(& conn);
+    let variants_result =
+        ProductVariant::belonging_to(&products_result)
+            .inner_join(variants)
+            .load::<(ProductVariant, Variant)>(conn)?
+            .group_by(&products_result);
+    let data = products_result.into_iter().zip(variants_result).collect::<Vec<_>>();
+
+    Ok(data)
+}
 }
 
 
@@ -80,18 +104,19 @@ pub mod product_variant{
 #[cfg(test)]
 mod tests {
 use crate::core::connection::establish_connection_test;
+//use crate::core::product::product::list_products;
 use crate::model::model::{NewCompleteProduct, NewVariantValue};
 use diesel::result::Error;
 use diesel::Connection;
-use crate::core::product_variant::product_variant::{create_product_variant};
+use crate::core::product_variant::product_variant::{create_product_variant, list_products};
 use crate::model::model::model_product::{NewProduct, Product};
-use crate::model::model::model_product_variant::{NewVariant};
+use crate::model::model::model_variant::{NewVariant};
 
 
 #[test]
 fn create_product_variant_test() {
-    let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|connection| {
+    let  connection = establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|| {
         create_product_variant(NewCompleteProduct {
             product: NewProduct {
                 name: "boots".to_string(),
@@ -111,11 +136,11 @@ fn create_product_variant_test() {
                     ]
                 }
             ]
-        }, connection).unwrap();
+        }, &connection).unwrap();
 
         // The function list_products is created to list the last products with their variants.
         assert_eq!(
-            serde_json::to_string(&list_products(&mut connection).unwrap()).unwrap(),
+            serde_json::to_string(&list_products(&connection).unwrap()).unwrap(),
             serde_json::to_string(&vec![
                 (
                     Product {
