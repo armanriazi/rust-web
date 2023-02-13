@@ -6,7 +6,7 @@
     ],
     "settings": {
         "workbench.editor.labelFormat": "medium",
-        "window.zoomLevel": 1,
+        "window.zoomLevel": 0,
         "files.autoSave": "afterDelay",
         "editor.semanticHighlighting.enabled": true
     }

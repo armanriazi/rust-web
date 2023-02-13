@@ -5,7 +5,7 @@
 ///
 /// # Commands
 /// > `Workspace`
-/// ```cargo run -q -p web_edu_bin```
+/// ```RUST_BACKTRACE=1 cargo run -q -p web_edu_bin```
 ///
 /// ```cargo doc  --workspace --message-format short --no-deps --open --color always```
 ///
@@ -58,6 +58,7 @@ use diesel::sqlite::SqliteConnection;
 use diesel::result::Error;
 use anyhow::Result;
 use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
+use web_edu_lib::core::connection::establish_connection_test;
 use ::web_edu_lib::model::model::model_product::*;
 use ::web_edu_lib::model::model::model_product_variant::*;
 //use ::web_edu_lib::model::model::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
@@ -65,7 +66,35 @@ use web_edu_lib::schema::{products,products_variants, self};
 
 no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);// imported due to form edit include update, delete
 
-
+/*fn main() {
+    use schema::products::dsl::*;
+    println!("The products are: {:#?}", index_list_products(products::table()));
+    //println!("The products with variants are: {:#?}", list_products_variants());
+}
+ fn index_list_products( query: use schema::products::dsl::BoxedQuery<diesel::sqlite::Sqlite>) -> Vec<Product>
+    where
+           T: diesel::Table +
+           diesel::query_builder::AsQuery,<T as diesel::query_builder::AsQuery>::Query: QueryId
+  {
+    
+    let  mut conn = establish_connection_test();
+     query    
+    .limit(10)
+    .load::<Product>(&mut conn)
+    //.expect("Error loading products")
+}*/
+//  fn index_list_products<'a, C, T>(query: T)->Result<Vec<C>,Error>
+//     where
+//            T: diesel::Table +
+//            diesel::query_builder::AsQuery,<T as diesel::query_builder::AsQuery>::Query: QueryId
+//   {
+    
+//     let  mut conn = establish_connection_test();
+//      query    
+//     .limit(10)
+//     .load::<T>(&mut conn)
+//     //.expect("Error loading products")
+// }
 fn main() {
     println!("The products are: {:#?}", index_list_products());
     //println!("The products with variants are: {:#?}", list_products_variants());
@@ -73,31 +102,16 @@ fn main() {
 
 fn index_list_products() -> Vec<Product> {
     use schema::products::dsl::*;
-    let mut conn = establish_connection();
+    let  conn = establish_connection_test();
     products
-        .limit(10)        
-        .load::<Product>(&mut conn)
-        .expect("Error loading products")
+    .select(name)
+    .limit(1)
+    .load::<Product>(&conn)
+    .expect("Error loading products")
 }
 
 /* 
-fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
-    use ::web_edu_lib::schema::products::dsl::products;
-    use ::web_edu_lib::schema::variants::dsl::variants;
 
-    let products_result = 
-        products
-        .limit(10)
-        .load::<Product>(&conn)?;
-    let variants_result =
-        ProductVariant::belonging_to(&products_result)
-            .inner_join(variants)
-            .load::<(ProductVariant, Variant)>(conn)?
-            .grouped_by(&products_result);
-    let data = products_result.into_iter().zip(variants_result).collect::<Vec<_>>();
-
-    Ok(data)
-}
 
 
 
@@ -221,7 +235,7 @@ use ::web_edu_lib::model::model::model_product::{Product, NewProduct};
 // use ::web_edu::schema::variants;
 //
 
-fn index_list_products(conn: & SqliteConnection) -> Vec<Product> {
+pub fn index_list_products(conn: & SqliteConnection) -> Vec<Product> {
     use web_edu_lib::schema::products::dsl::*;
     products
         .limit(10)
@@ -233,7 +247,7 @@ fn index_list_products(conn: & SqliteConnection) -> Vec<Product> {
 
 #[test]
 fn test_index_list_products() {
-    use ::web_edu_lib::schema::products::dsl::products;
+    use ::web_edu_lib::schema::products::dsl::*;
 
     let mut connection = establish_connection_test();
     connection.test_transaction::<_, Error, _>(|connection| {
@@ -281,151 +295,7 @@ fn test_index_list_products() {
   }
 
 //
-/* 
-#[test]
-fn test_list_products_variants() {
-    use ::web_edu_lib::schema::products::dsl::products;
-    use ::web_edu_lib::schema::variants::dsl::variants;
 
-    let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|connection| {
-        let variants = vec![
-            NewVariantValue {
-                variant: NewVariant {
-                    name: "size".to_string()
-                },
-                values: vec![
-                    Some(12.to_string()),
-                    Some(14.to_string()),
-                    Some(16.to_string()),
-                    Some(18.to_string())
-                ]
-            }
-        ];
-
-        create_product(NewCompleteProduct {
-            product: NewProduct {
-                name: "boots".to_string(),
-                cost: 13.23,
-                active: true
-            },
-            variants: variants.clone()
-        }, &mut connection).unwrap();
-        create_product(NewCompleteProduct {
-            product: NewProduct {
-                name: "high heels".to_string(),
-                cost: 20.99,
-                active: true
-            },
-            variants: variants.clone()
-        }, &mut connection).unwrap();
-        create_product(NewCompleteProduct {
-            product: NewProduct {
-                name: "running shoes".to_string(),
-                cost: 10.99,
-                active: true
-            },
-            variants: variants.clone()
-        }, &mut connection).unwrap();
-
-        let variants_result = |start_id, for_product_id| {
-            vec![
-                (
-                    ProductVariant {
-                        id: start_id + 1,
-                        variant_id: 1,
-                        product_id: for_product_id,
-                        value: Some(
-                            "12".to_string(),
-                        ),
-                    },
-                    Variant {
-                        id: 1,
-                        name: "size".to_string(),
-                    }
-                ),
-                (
-                    ProductVariant {
-                        id: start_id + 2,
-                        variant_id: 1,
-                        product_id: for_product_id,
-                        value: Some(
-                            "14".to_string(),
-                        ),
-                    },
-                    Variant {
-                        id: 1,
-                        name: "size".to_string(),
-                    }
-                ),
-                (
-                    ProductVariant {
-                        id: start_id + 3,
-                        variant_id: 1,
-                        product_id: for_product_id,
-                        value: Some(
-                            "16".to_string(),
-                        ),
-                    },
-                    Variant {
-                        id: 1,
-                        name: "size".to_string(),
-                    }
-                ),
-                (
-                    ProductVariant {
-                        id: start_id + 4,
-                        variant_id: 1,
-                        product_id: for_product_id,
-                        value: Some(
-                            "18".to_string(),
-                        ),
-                    },
-                    Variant {
-                        id: 1,
-                        name: "size".to_string(),
-                    }
-                )
-            ]
-        };
-
-        assert_eq!(serde_json::to_string(&list_products_variants(&mut connection).unwrap()).unwrap(), 
-            serde_json::to_string(&vec![
-                (
-                    Product {
-                        id: 1,
-                        name: "boots".to_string(),
-                        cost: 13.23,
-                        active: true
-                    },
-                    variants_result(0, 1)
-                ),
-                (
-                    Product {
-                        id: 2,
-                        name: "high heels".to_string(),
-                        cost: 20.99,
-                        active: true
-                    },
-                    variants_result(4, 2)
-                ),
-                (
-                    Product {
-                        id: 3,
-                        name: "running shoes".to_string(),
-                        cost: 10.99,
-                        active: true
-                    },
-                    variants_result(8, 3)
-                )
-            ]).unwrap());
-
-        Ok(())
-
-    });
-  }
-
-*/
 #[test]
 fn show_product_test() {
 
