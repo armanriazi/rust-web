@@ -22,7 +22,7 @@
 /// ```cargo test --doc  --package web_edu_bin```
 ///
 /// > > ` Library `
-/// ```cargo run -q -p web_edu_lib```
+/// ```cargo test -q -p web_edu_lib```
 ///
 /// ```cargo doc  --package web_edu_lib --message-format short --no-deps --open --color always```
 ///
@@ -98,7 +98,7 @@ fn index_list_products() -> Vec<Product> {
     use schema::products::dsl::*;
     let  conn = &mut establish_connection_test();
     products
-    .select(name)
+    //.select(name)
     .limit(1)
     .load::<Product>(conn)
     .expect("Error loading products")

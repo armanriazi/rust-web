@@ -613,6 +613,7 @@ dependencies = [
  "dotenv",
  "failure",
  "serde",
+ "serde_derive",
  "serde_json",
  "web_edu_lib",
 ]

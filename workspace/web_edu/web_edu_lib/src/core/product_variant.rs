@@ -11,7 +11,7 @@ pub mod product_variant{
     use crate::model::model::NewCompleteProduct;
     use crate::model::model::model_product::Product;
     use crate::model::model::model_variant::Variant;
-    use crate::schema::{self, variants, products,products_variants};
+    use crate::schema::{variants, products,products_variants, self};
     use diesel::sqlite::SqliteConnection;
     use diesel::result::Error;
     use diesel::RunQueryDsl;
@@ -21,7 +21,7 @@ pub mod product_variant{
     use crate::model::model::model_product_variant::*;
     use diesel::Connection;    
     use diesel::query_dsl::QueryDsl;
-
+    
     no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);
 
     pub fn create_product_variant(new_product: &NewCompleteProduct, conn: &mut SqliteConnection) -> Result<i32>  {
@@ -79,16 +79,17 @@ pub fn list_products(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(P
     use schema::products::dsl::products;
     use schema::variants::dsl::variants;
 
-    let products_result = 
+    let products_result= 
         products
+        //.select(name)
         .limit(10)
-        .load::<Product>(conn);
+        .load::<Product>(conn)?;
 
     let variants_result =
-         <ProductVariant as BelongingToDsl<&Vec<Product>>>::belonging_to(&products_result.unwrap())
+        ProductVariant::belonging_to(&products_result)
             .inner_join(variants)
             .load::<(ProductVariant, Variant)>(conn)?
-            .group_by(&products_result);
+            .grouped_by(&products_result);
     let data = products_result.into_iter().zip(variants_result).collect::<Vec<_>>();
 
     Ok(data)
@@ -109,7 +110,7 @@ use crate::core::connection::establish_connection_test;
 use crate::model::model::{NewCompleteProduct, NewVariantValue};
 use diesel::result::Error;
 use diesel::Connection;
-use crate::core::product_variant::product_variant::{create_product_variant};
+use crate::core::product_variant::product_variant::{create_product_variant, list_products};
 use crate::model::model::model_product::{NewProduct, Product};
 use crate::model::model::model_variant::{NewVariant};
 

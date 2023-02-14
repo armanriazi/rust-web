@@ -46,7 +46,7 @@ fn create_product_test() {
                 name: "boots".to_string(),
                 cost: 13.23,
                 active: true
-            }, &mut connection);
+            }, connection);
         assert_eq!(Ok(1), results);
 
         Ok(())

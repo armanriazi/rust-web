@@ -35,7 +35,7 @@ pub mod model_product {
             pub active: bool,
         }
 
-      #[derive(Identifiable,Queryable, Debug, Serialize, Deserialize,PartialEq)]
+      #[derive(Identifiable,Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]
         pub struct Product {
             pub id: i32,
             pub name: String,
@@ -49,7 +49,7 @@ pub mod model_variant {
         use diesel::{Insertable, Identifiable,Queryable};        
         use serde::{Serialize, Deserialize};
 
-        #[derive(Identifiable, Queryable, Debug, Serialize, Deserialize,PartialEq)]       
+        #[derive(Identifiable, Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]       
         pub struct Variant {
             pub id: i32,
             pub name: String,
@@ -79,7 +79,7 @@ pub mod model_product_variant {
         pub value: Option<String>
     }
   
-    #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize,PartialEq)]
+    #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]
     #[diesel(table_name = products_variants)]  
     //#[diesel(belongs_to(Product, foreign_key = "username"))]    
     #[belongs_to(Product, foreign_key = "product_id")]
