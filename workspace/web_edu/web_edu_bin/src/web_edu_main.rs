@@ -28,12 +28,6 @@
 ///
 /// ```cargo test --doc  --package web_edu_lib```
 ///
-/// > > ` Model `
-/// ```cargo run -q -p web_edu_model```
-///
-/// ```cargo doc  --package web_edu_model --message-format short --no-deps --open --color always```
-///
-/// ```cargo test --doc  --package web_edu_model```
 ///
 /// ## What
 /// `TODO`
@@ -102,11 +96,11 @@ fn main() {
 
 fn index_list_products() -> Vec<Product> {
     use schema::products::dsl::*;
-    let  conn = establish_connection_test();
+    let  conn = &mut establish_connection_test();
     products
     .select(name)
     .limit(1)
-    .load::<Product>(&conn)
+    .load::<Product>(conn)
     .expect("Error loading products")
 }
 
@@ -249,19 +243,19 @@ pub fn index_list_products(conn: & SqliteConnection) -> Vec<Product> {
 fn test_index_list_products() {
     use ::web_edu_lib::schema::products::dsl::*;
 
-    let mut connection = establish_connection_test();
+    let connection = &mut establish_connection_test();
     connection.test_transaction::<_, Error, _>(|connection| {
-        create_product(NewProduct {
+        create_product(&NewProduct {
             name: "boots".to_string(),
             cost: 13.23,
             active: true
         }, connection);
-        create_product(NewProduct {
+        create_product(&NewProduct {
             name: "high heels".to_string(),
             cost: 20.99,
             active: true
         }, connection);
-        create_product(NewProduct {
+        create_product(&NewProduct {
             name: "running shoes".to_string(),
             cost: 10.99,
             active: true

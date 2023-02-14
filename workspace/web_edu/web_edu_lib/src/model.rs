@@ -1,3 +1,5 @@
+/// ```cargo test -q -p web_edu_lib```
+/// 
 pub mod model {
 
     use self::{model_product::NewProduct};
@@ -25,15 +27,15 @@ pub mod model_product {
         /// This struct will be our model for inserting data in our database. 
         /// Therefore, we need it to be Insertable, We also need to give it the name of our table.
         #[derive(Insertable, Debug)]
-        #[table_name="products"]
+        //#[table_name="products"] //v1
+        #[diesel(table_name = products)]
         pub struct NewProduct {
             pub name: String,
             pub cost: f64,
             pub active: bool,
         }
 
-      #[derive(Identifiable, Queryable, Debug, Serialize, Deserialize)]
-        #[table_name="products"]
+      #[derive(Identifiable,Queryable, Debug, Serialize, Deserialize,PartialEq)]
         pub struct Product {
             pub id: i32,
             pub name: String,
@@ -42,26 +44,26 @@ pub mod model_product {
         }
 }
 
-pub mod model_variant {
+pub mod model_variant {  
         use crate::schema::*;
         use diesel::{Insertable, Identifiable,Queryable};        
         use serde::{Serialize, Deserialize};
 
-        #[derive(Identifiable, Queryable, Debug, Serialize, Deserialize)]
-        #[table_name = "variants"]
+        #[derive(Identifiable, Queryable, Debug, Serialize, Deserialize,PartialEq)]       
         pub struct Variant {
             pub id: i32,
             pub name: String,
         }
 
         #[derive(Insertable, Debug, Clone)]
-        #[table_name="variants"]
+        #[diesel(table_name = variants)]        
         pub struct NewVariant {
             pub name: String,
         }
 }
 
 pub mod model_product_variant {
+    use diesel::prelude::*;   
     use crate::schema::*;
     use diesel::{Insertable, Identifiable,Queryable};        
     use diesel::query_dsl::BelongingToDsl;
@@ -70,16 +72,17 @@ pub mod model_product_variant {
     use crate::model::model::model_product::Product;
 
     #[derive(Insertable, Debug)]
-    #[table_name="products_variants"]
+    #[diesel(table_name = products_variants)]       
     pub struct NewProductVariant {
         pub product_id: i32,
         pub variant_id: i32,
         pub value: Option<String>
     }
   
-    #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize)]
-    #[belongs_to(Product)]
-    #[table_name="products_variants"]
+    #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize,PartialEq)]
+    #[diesel(table_name = products_variants)]  
+    //#[diesel(belongs_to(Product, foreign_key = "username"))]    
+    #[belongs_to(Product, foreign_key = "product_id")]
     pub struct ProductVariant {
         pub id: i32,
         pub product_id: i32,
