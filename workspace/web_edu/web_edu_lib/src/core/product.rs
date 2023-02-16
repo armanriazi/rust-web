@@ -1,9 +1,47 @@
 
 
+#![allow(dead_code, unused_variables)]
+//#![doc(html_logo_url = "https://armanriazi.github.io/site/assets/attachments/me.png")]
+/// Unit Tests
+///
+/// # Commands
+/// > `Test per unit`
+/// 
+/// ```cargo test -q -p web_edu_lib create_product_test  -- --exact  --show-output```
+///
+/// ```cargo test -q -p web_edu_lib list_products_test  -- --exact  --show-output```
+/// 
+/// ```cargo test -q -p web_edu_lib show_product_test  -- --exact  --show-output```
+/// 
+/// > > ` Library `
+/// ```cargo test -q -p web_edu_lib```
+///
+/// ```cargo doc  --package web_edu_lib --message-format short --no-deps --open --color always```
+///
+/// ```cargo test --doc  --package web_edu_lib```
+///
+///
+/// ## What
+/// `TODO`
+///
+/// ## How
+/// `TODO`
+///
+/// # Arguments
+///
+/// * `Arg1` - This is the [your type] to [your verb] the [your struct/func name]
+///
+/// # Return
+/// `nothing`
+///
+/// ## Example
+/// `TODO`
+/// 
+
 pub mod product{
 use crate::model::model::model_product::{NewProduct, Product};
 use crate::schema;
-use diesel::sqlite::{SqliteConnection, SqliteType};
+use diesel::sqlite::{SqliteConnection};
 use diesel::result::Error;
 use diesel::{RunQueryDsl, QueryDsl};
 
@@ -32,16 +70,14 @@ pub fn show_product(id: i32, conn: &mut SqliteConnection) -> Result<Product, Err
 #[warn(unused_must_use)]
 #[cfg(test)]
 mod tests {
-use diesel::prelude::*;   
 use diesel::result::Error;
-use diesel::{Connection, SqliteConnection};
+use diesel::{Connection};
 use crate::core::connection::establish_connection_test;
 use crate::core::product::product::{create_product, list_products, show_product};
 use crate::model::model::{NewVariantValue, NewCompleteProduct};
 use crate::model::model::model_product::{NewProduct, Product};
-use crate::model::model::model_variant::{Variant, NewVariant};
-use crate::model::model::model_product_variant::NewProductVariant;
-use crate::schema;
+use crate::model::model::model_variant::{NewVariant};
+
 
 #[test]
 fn create_product_test() {

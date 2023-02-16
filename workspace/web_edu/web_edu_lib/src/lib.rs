@@ -14,7 +14,7 @@
 /// ```cargo test --doc  --workspace```
 /// 
 /// > > ` Library `
-/// ```cargo test -q -p web_edu_lib```
+/// ```cargo test -q -p web_edu_lib -- --show-output```
 ///
 /// ```cargo doc  --package web_edu_lib --message-format short --no-deps --open --color always```
 ///
@@ -39,7 +39,7 @@
 /// 
 #[macro_use]
 extern crate diesel;
-
+//#[macro_use] extern crate diesel_codegen;
 extern crate dotenv;
 extern crate serde;
 extern crate serde_json;

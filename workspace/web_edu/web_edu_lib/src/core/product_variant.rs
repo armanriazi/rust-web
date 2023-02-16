@@ -23,20 +23,7 @@
 /// `TODO`
 ///
 /// ## How
-/// `TODO`
 ///
-/// # Arguments
-///
-/// * `Arg1` - This is the [your type] to [your verb] the [your struct/func name]
-///
-/// # Return
-/// `nothing`
-///
-/// ## Example
-/// `TODO`
-/// 
-
-
 /// we use the macro no_arg_sql_function!, which allows us to use an SQL function in our code. 
 /// In this case, SQLite does not have RETURNING for our inserts implemented.
 /// Therefore, we need a function called last_insert_rowid to get the last id inserted.
@@ -55,12 +42,25 @@
 /// 3.
 /// `SELECT id from table ORDER BY id DESC LIMIT 1;`
 /// 
+///
+/// # Arguments
+///
+/// * `Arg1` - This is the [your type] to [your verb] the [your struct/func name]
+///
+/// # Return
+/// `nothing`
+///
+/// ## Example
+/// `TODO`
+/// 
+
+
 pub mod product_variant{
     use diesel::prelude::*;   
     use crate::model::model::NewCompleteProduct;
     use crate::model::model::model_product::Product;
     use crate::model::model::model_variant::Variant;
-    use crate::schema::{variants, products,products_variants, self};
+    use crate::schema::{self};
     use diesel::sqlite::SqliteConnection;
     use diesel::result::Error;
     use diesel::RunQueryDsl;
@@ -128,14 +128,14 @@ pub mod product_variant{
     
     
 pub fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
-    use schema::products::dsl::products;
-    use schema::variants::dsl::variants;
+    use schema::products::dsl::*;
+    use schema::variants::dsl::*;
 
-    let products_result= 
-        products
+    let products_result=  products
         //.select(name)
         .limit(10)
         .load::<Product>(conn)?;
+       
 
     let variants_result =
         ProductVariant::belonging_to(&products_result)
@@ -156,10 +156,8 @@ pub fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Produc
 // }
 #[cfg(test)]
 mod tests {
-use diesel::prelude::*;   
 use crate::core::connection::establish_connection_test;
 use crate::model::model::model_product_variant::ProductVariant;
-//use crate::core::product::product::list_products;
 use crate::model::model::{NewCompleteProduct, NewVariantValue};
 use diesel::result::Error;
 use diesel::Connection;
