@@ -89,8 +89,18 @@ no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);// imported 
 //     .load::<T>(&mut conn)
 //     //.expect("Error loading products")
 // }
+
 fn main() {
+    
     println!("The products are: {:#?}", index_list_products());
+    //let results = index_list_products();
+    //println!("Displaying {} products", results.len());
+    // for product in results {
+    //     println!("{}", product.name);
+    //     println!("----------\n");
+    //     println!("{}", product.cost);
+    // }
+    //
     //println!("The products with variants are: {:#?}", list_products_variants());
 }
 
@@ -99,7 +109,7 @@ fn index_list_products() -> Vec<Product> {
     let  conn = &mut establish_connection_test();
     products
     //.select(name)
-    .limit(1)
+    .limit(10)
     .load::<Product>(conn)
     .expect("Error loading products")
 }

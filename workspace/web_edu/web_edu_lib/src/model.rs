@@ -80,9 +80,9 @@ pub mod model_product_variant {
     }
   
     #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]
-    #[diesel(table_name = products_variants)]  
-    //#[diesel(belongs_to(Product, foreign_key = "username"))]    
-    #[belongs_to(Product, foreign_key = "product_id")]
+    #[diesel(table_name = products_variants)]      
+    #[diesel(belongs_to(Product, foreign_key = product_id))]
+    //#[belongs_to(Product, foreign_key = "product_id")]
     pub struct ProductVariant {
         pub id: i32,
         pub product_id: i32,

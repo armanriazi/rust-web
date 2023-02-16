@@ -2,7 +2,7 @@
 
 diesel::table! {
     products (id) {
-        id -> Integer,
+        id -> Nullable<Integer>,
         name -> Text,
         cost -> Double,
         active -> Bool,
