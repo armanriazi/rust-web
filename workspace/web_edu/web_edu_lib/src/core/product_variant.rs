@@ -10,6 +10,8 @@
 /// ```cargo test -q -p web_edu_lib show_product_variants_test  -- --exact  --show-output```
 ///
 /// ```cargo test -q -p web_edu_lib show_products_variants_test  -- --exact  --show-output```
+///
+/// ```cargo test -q -p web_edu_lib search_products_test  -- --exact  --show-output```
 /// 
 /// > > ` Library `
 /// ```cargo test -q -p web_edu_lib```
@@ -59,7 +61,8 @@ pub mod product_variant{
     use diesel::prelude::*;   
     use crate::model::model::NewCompleteProduct;
     use crate::model::model::model_product::Product;
-    use crate::model::model::model_variant::Variant;
+    use crate::model::model::model_variant::Variant;   
+    use crate::model::model::model_product_variant::*;
     use crate::schema::{self};
     use diesel::sqlite::SqliteConnection;
     use diesel::result::Error;
@@ -67,7 +70,7 @@ pub mod product_variant{
     use diesel::BelongingToDsl;
     use anyhow::Result;    
     use diesel::ExpressionMethods;
-    use crate::model::model::model_product_variant::*;
+
     use diesel::Connection;    
     use diesel::query_dsl::QueryDsl;
     
@@ -75,7 +78,7 @@ pub mod product_variant{
     fn last_insert_rowid()-> diesel::sql_types::Integer;
    }
 
-    pub fn create_product_variant(new_product: &NewCompleteProduct, conn: &mut SqliteConnection) -> Result<i32>  {
+pub fn create_product_variant(new_product: &NewCompleteProduct, conn: &mut SqliteConnection) -> Result<i32>  {
         //use schema::products::dsl::*;
         use schema::variants::dsl::*;
         use schema::products_variants::dsl::*;
@@ -146,7 +149,27 @@ pub fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Produc
 
     Ok(data)
 }
- }
+
+pub fn search_products_variants(search: String, conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
+    use schema::products::dsl::*;
+    use schema::variants::dsl::*;
+
+    let pattern = format!("%{}%", search);
+    let products_result = 
+        products
+        .filter(products::all_columns().1.like(pattern))
+        .load::<Product>(conn)?;
+    let variants_result =
+        ProductVariant::belonging_to(&products_result)
+            .inner_join(variants)
+            .load::<(ProductVariant, Variant)>(conn)?
+            .grouped_by(&products_result);
+    let data = products_result.into_iter().zip(variants_result).collect::<Vec<_>>();
+
+    Ok(data)
+}
+
+}
 
 
 // impl<T: Display> Display for Complex<T> {
@@ -161,7 +184,7 @@ use crate::model::model::model_product_variant::ProductVariant;
 use crate::model::model::{NewCompleteProduct, NewVariantValue};
 use diesel::result::Error;
 use diesel::Connection;
-use crate::core::product_variant::product_variant::{create_product_variant, list_products_variants};
+use crate::core::product_variant::product_variant::{create_product_variant, list_products_variants, search_products_variants};
 use crate::model::model::model_product::{NewProduct, Product};
 use crate::model::model::model_variant::{NewVariant, Variant};
 
@@ -412,4 +435,78 @@ fn show_product_variants_test() {
     });
 }
 
+
+#[test]
+fn search_products_test() {
+    let connection = &mut establish_connection_test();
+    connection.test_transaction::<_, Error, _>(|connection| {
+        let variants = vec![
+            NewVariantValue {
+                variant: NewVariant {
+                    name: "size".to_string()
+                },
+                values: vec![
+                    Some(12.to_string()),
+                ]
+            }
+        ];
+
+        create_product_variant(&NewCompleteProduct {
+            product: NewProduct {
+                name: "boots".to_string(),
+                cost: 13.23,
+                active: true
+            },
+            variants: variants.clone()
+        }, connection).unwrap();
+        create_product_variant(&NewCompleteProduct {
+            product: NewProduct {
+                name: "high heels".to_string(),
+                cost: 20.99,
+                active: true
+            },
+            variants: variants.clone()
+        }, connection).unwrap();
+        create_product_variant(&NewCompleteProduct {
+            product: NewProduct {
+                name: "running shoes".to_string(),
+                cost: 10.99,
+                active: true
+            },
+            variants: variants.clone()
+        }, connection).unwrap();
+
+        assert_eq!(
+            serde_json::to_string(&search_products_variants("shoes".to_string(), connection).unwrap()).unwrap(),
+            serde_json::to_string(&vec![
+                (
+                    Product {
+                        id: 3,
+                        name: "running shoes".to_string(),
+                        cost: 10.99,
+                        active: true
+                    },
+                    vec![
+                        (
+                            ProductVariant {
+                                id: 3,
+                                variant_id: 1,
+                                product_id: 3,
+                                value: Some(
+                                    "12".to_string(),
+                                ),
+                            },
+                            Variant {
+                                id: 1,
+                                name: "size".to_string(),
+                            }
+                        )
+                    ]
+                )
+            ]).unwrap()
+        );
+
+        Ok(())
+    });
+}
 }

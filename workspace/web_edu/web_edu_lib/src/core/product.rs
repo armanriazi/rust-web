@@ -40,6 +40,8 @@
 
 pub mod product{
 use crate::model::model::model_product::{NewProduct, Product};
+use crate::model::model::model_product_variant::ProductVariant;
+use crate::model::model::model_variant::Variant;
 use crate::schema;
 use diesel::sqlite::{SqliteConnection};
 use diesel::result::Error;
@@ -65,6 +67,10 @@ pub fn show_product(id: i32, conn: &mut SqliteConnection) -> Result<Product, Err
         .find(id)
         .first(conn)
 }
+
+
+
+
 }
 
 #[warn(unused_must_use)]
@@ -95,7 +101,6 @@ fn create_product_test() {
     });
 }
 
-
 #[test]
 fn list_products_test() {
     let connection = &mut establish_connection_test();
@@ -105,7 +110,7 @@ fn list_products_test() {
             cost: 13.23,
             active: true
         }, connection);
-        dbg!(a);
+               
         let _= create_product(&NewProduct {
             name: "high heels".to_string(),
             cost: 20.99,
@@ -187,4 +192,6 @@ fn show_product_test() {
         Ok(())
     });
   }
+
+
 }
