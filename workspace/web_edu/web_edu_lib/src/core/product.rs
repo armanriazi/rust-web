@@ -39,9 +39,10 @@
 /// 
 
 pub mod product{
-use crate::model::model::model_product::*;
-use crate::model::model::model_variant::*;
-use crate::model::model::model_product_variant::*;
+use crate::model::Product;
+use crate::viewmodel::viewmodel::model_product::*;
+use crate::viewmodel::viewmodel::model_variant::*;
+use crate::viewmodel::viewmodel::model_product_variant::*;
 use diesel::{RunQueryDsl, QueryDsl};
 use crate::schema;
 use diesel::sqlite::{SqliteConnection};
@@ -80,9 +81,10 @@ use diesel::result::Error;
 use diesel::{Connection};
 use crate::core::connection::establish_connection_test;
 use crate::core::product::product::{create_product, list_products, show_product};
-use crate::model::model::{NewVariantValue, NewCompleteProduct};
-use crate::model::model::model_product::{NewProduct, Product};
-use crate::model::model::model_variant::{NewVariant};
+use crate::model::Product;
+use crate::viewmodel::viewmodel::{NewVariantValue, NewCompleteProduct};
+use crate::viewmodel::viewmodel::model_product::{NewProduct};
+use crate::viewmodel::viewmodel::model_variant::{NewVariant};
 
 
 #[test]

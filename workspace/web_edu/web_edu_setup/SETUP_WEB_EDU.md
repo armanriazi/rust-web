@@ -39,6 +39,7 @@ mkdir ./migrations
 ```
 diesel migration generate create_products --migration-dir='./migrations'
 diesel migration generate create_variants --migration-dir='./migrations'
+diesel migration generate create_sales --migration-dir='./migrations'
 ```
 
 7. migration
@@ -59,6 +60,7 @@ diesel migration run --database-url='./db/web_edu_test.sqlite' --migration-dir='
 2. check created tables in db
 
 ```
+sqlite3 ./db/web_edu.sqlite
 sqlite3 ./db/web_edu_test.sqlite
 
 ```

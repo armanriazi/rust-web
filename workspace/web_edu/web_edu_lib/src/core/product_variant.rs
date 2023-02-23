@@ -59,10 +59,11 @@
 
 pub mod product_variant{
     use diesel::prelude::*;   
-    use crate::model::model::NewCompleteProduct;
-    use crate::model::model::model_product::Product;
-    use crate::model::model::model_variant::Variant;   
-    use crate::model::model::model_product_variant::*;
+    use crate::model::ProductVariant;
+    use crate::viewmodel::viewmodel::NewCompleteProduct;
+    use crate::model::Product;
+    use crate::model::Variant;   
+    use crate::viewmodel::viewmodel::model_product_variant::*;
     use crate::schema::{self};
     use diesel::sqlite::SqliteConnection;
     use diesel::result::Error;
@@ -179,13 +180,14 @@ pub fn search_products_variants(search: String, conn: &mut SqliteConnection) -> 
 #[cfg(test)]
 mod tests {
 use crate::core::connection::establish_connection_test;
-use crate::model::model::model_product_variant::ProductVariant;
-use crate::model::model::{NewCompleteProduct, NewVariantValue};
+use crate::viewmodel::viewmodel::model_product_variant::*;
+use crate::viewmodel::viewmodel::{NewCompleteProduct, NewVariantValue};
 use diesel::result::Error;
 use diesel::Connection;
 use crate::core::product_variant::product_variant::{create_product_variant, list_products_variants, search_products_variants};
-use crate::model::model::model_product::{NewProduct, Product};
-use crate::model::model::model_variant::{NewVariant, Variant};
+use crate::viewmodel::viewmodel::model_product::{NewProduct};
+use crate::viewmodel::viewmodel::model_variant::{NewVariant, Variant};
+use crate::model::*;
 
 
 #[test]

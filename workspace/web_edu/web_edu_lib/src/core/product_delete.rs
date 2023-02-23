@@ -35,7 +35,7 @@
 /// 
 
 pub mod product{
-use crate::model::model::model_product::{NewProduct, Product};
+use crate::viewmodel::viewmodel::model_product::{NewProduct};
 use crate::schema;
 use diesel::sqlite::{SqliteConnection};
 use diesel::result::Error;
@@ -62,11 +62,12 @@ use crate::core::connection::establish_connection_test;
 use crate::core::product::product::{ show_product};
 use crate::core::product_delete::product::delete_product;
 use crate::core::product_variant::product_variant::create_product_variant;
-use crate::model::model::{NewVariantValue, NewCompleteProduct};
-use crate::model::model::model_product::{NewProduct};
-use crate::model::model::model_variant::{NewVariant};
+use crate::model::ProductVariant;
+use crate::viewmodel::viewmodel::{NewVariantValue, NewCompleteProduct};
+use crate::viewmodel::viewmodel::model_product::{NewProduct};
+use crate::viewmodel::viewmodel::model_variant::{NewVariant};
 use crate::schema;
-use crate::model::model::model_product_variant::*;
+use crate::viewmodel::viewmodel::model_product_variant::*;
 
 /// We need to be aware that SQLite does not enforce foreign keys, so we need to tell the database with the following command: connection.execute("PRAGMA foreign_keys = ON").
 #[test]
