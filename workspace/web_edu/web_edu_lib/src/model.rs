@@ -26,7 +26,7 @@ pub mod model_product {
 
         /// This struct will be our model for inserting data in our database. 
         /// Therefore, we need it to be Insertable, We also need to give it the name of our table.
-        #[derive(Insertable, Debug)]
+        #[derive(Insertable, Debug,AsChangeset)]
         //#[table_name="products"] //v1
         #[diesel(table_name = products)]
         pub struct NewProduct {
@@ -64,7 +64,6 @@ pub mod model_variant {
 
 pub mod model_product_variant {
     use diesel::prelude::*;   
-    use crate::schema::*;
     use diesel::{Insertable, Identifiable,Queryable};        
     use diesel::query_dsl::BelongingToDsl;
     use crate::schema::products_variants;
@@ -79,7 +78,7 @@ pub mod model_product_variant {
         pub value: Option<String>
     }
   
-    #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]
+    #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize,PartialEq,Eq,Selectable)]
     #[diesel(table_name = products_variants)]      
     #[diesel(belongs_to(Product, foreign_key = product_id))]
     //#[belongs_to(Product, foreign_key = "product_id")]
@@ -92,36 +91,39 @@ pub mod model_product_variant {
    
 }
 
-//     pub mod model_product_edit {
-//         use super::model_product::NewProduct;
+pub mod model_product_edit {
+    use serde::{Serialize, Deserialize};
+    use crate::schema::variants;
+    use crate::schema::products_variants;
+    use super::model_product::NewProduct;
 
-//         #[derive(Insertable, Queryable, AsChangeset, Debug, Clone, Serialize, Deserialize)]
-//         #[table_name="variants"]
-//         pub struct FormVariant {
-//             pub id: Option<i32>,
-//             pub name: String
-//         }
+    #[derive(Insertable, Queryable, AsChangeset, Debug, Clone, Serialize, Deserialize)]    
+    #[diesel(table_name = variants)]
+    pub struct FormVariant {
+        pub id: Option<i32>,
+        pub name: String
+    }
 
-//         #[derive(Insertable, Debug, AsChangeset)]
-//         #[table_name="products_variants"]
-//         pub struct FormProductVariant {
-//             pub id: Option<i32>,
-//             pub variant_id: Option<i32>,
-//             pub product_id: i32,
-//             pub value: Option<String>
-//         }
+    #[derive(Insertable, Debug, AsChangeset)]
+    #[diesel(table_name = products_variants)]
+    pub struct FormProductVariant {
+        pub id: Option<i32>,
+        pub variant_id: Option<i32>,
+        pub product_id: i32,
+        pub value: Option<String>
+    }
 
-//         pub struct FormProductVariantComplete {
-//             pub variant: Option<FormVariant>,
-//             pub product_variant: FormProductVariant,
-//         }
+    pub struct FormProductVariantComplete {
+        pub variant: Option<FormVariant>,
+        pub product_variant: FormProductVariant,
+    }
 
-//         pub struct FormProduct {
-//             pub product: NewProduct,
-//             pub variants: Vec<FormProductVariantComplete>
-//         }
-//     }
+    pub struct FormProduct {
+        pub product: NewProduct,
+        pub variants: Vec<FormProductVariantComplete>
+    }
+}
 
- }
+}
 
 

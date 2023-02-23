@@ -39,13 +39,13 @@
 /// 
 
 pub mod product{
-use crate::model::model::model_product::{NewProduct, Product};
-use crate::model::model::model_product_variant::ProductVariant;
-use crate::model::model::model_variant::Variant;
+use crate::model::model::model_product::*;
+use crate::model::model::model_variant::*;
+use crate::model::model::model_product_variant::*;
+use diesel::{RunQueryDsl, QueryDsl};
 use crate::schema;
 use diesel::sqlite::{SqliteConnection};
 use diesel::result::Error;
-use diesel::{RunQueryDsl, QueryDsl};
 
 pub fn create_product(new_product: &NewProduct, conn: &mut SqliteConnection) -> Result<usize, Error>  {
     use schema::products::dsl::*;

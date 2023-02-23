@@ -48,15 +48,11 @@
 #[macro_use]
 extern crate diesel; // imported due to form edit include update, delete
 use web_edu_lib::core::connection::establish_connection;
-use diesel::sqlite::SqliteConnection;
-use diesel::result::Error;
-use anyhow::Result;
-use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
+use diesel::{RunQueryDsl, QueryDsl};
 use web_edu_lib::core::connection::establish_connection_test;
 use ::web_edu_lib::model::model::model_product::*;
-use ::web_edu_lib::model::model::model_product_variant::*;
-//use ::web_edu_lib::model::model::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
-use web_edu_lib::schema::{products,products_variants, self};
+use ::web_edu_lib::model::model::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
+use web_edu_lib::schema::{self};
 
 /*fn main() {
     use schema::products::dsl::*;

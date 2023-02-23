@@ -129,7 +129,6 @@ pub fn create_product_variant(new_product: &NewCompleteProduct, conn: &mut Sqlit
 
 }
     
-    
 pub fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
     use schema::products::dsl::*;
     use schema::variants::dsl::*;

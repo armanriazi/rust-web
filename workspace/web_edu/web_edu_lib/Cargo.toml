@@ -19,7 +19,7 @@ anyhow="1.0.20"
 [dev-dependencies]
 proptest = "1.0.0"
 pretty_assertions = "1.0.0"
-dotenvy = "0.15"
+dotenvy = "0.15.6"
 
 [[test]]
 doc = true
