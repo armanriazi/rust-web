@@ -2,7 +2,7 @@
 
 diesel::table! {
     products (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         name -> Text,
         cost -> Double,
         active -> Bool,
@@ -28,10 +28,10 @@ diesel::table! {
 diesel::table! {
     sales (id) {
         id -> Integer,
-        date -> Text,
-        tax_total -> Text,
-        sub_total -> Text,
-        total -> Text,
+        date -> Nullable<Text>,
+        tax_total -> Integer,
+        sub_total -> Integer,
+        total -> Integer,
     }
 }
 
