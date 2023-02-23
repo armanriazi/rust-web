@@ -56,12 +56,10 @@ pub mod viewmodel {
     }
 
     pub mod model_product_variant {
-        use crate::model::Product;
         use crate::schema::products_variants;
         use diesel::prelude::*;
         use diesel::query_dsl::BelongingToDsl;
-        use diesel::{Identifiable, Insertable, Queryable};
-        use serde::{Deserialize, Serialize};
+        use diesel::{ Insertable};
 
         #[derive(Insertable, Debug)]
         #[diesel(table_name = products_variants)]
@@ -77,7 +75,8 @@ pub mod viewmodel {
         use crate::schema::products_variants;
         use crate::schema::variants;
         use serde::{Deserialize, Serialize};
-
+        use diesel::{ Insertable, AsChangeset};
+        
         #[derive(Insertable, Queryable, AsChangeset, Debug, Clone, Serialize, Deserialize)]
         #[diesel(table_name = variants)]
         pub struct FormVariant {
@@ -106,9 +105,11 @@ pub mod viewmodel {
     }
 
     pub mod model_sales {
+
         use crate::schema::sales;
         use diesel::{Insertable,AsChangeset};
         use serde::{Deserialize, Serialize};
+        
         #[derive(Insertable, Debug, AsChangeset, Serialize, Deserialize)]
         #[diesel(table_name = sales)]
         pub struct NewSale {

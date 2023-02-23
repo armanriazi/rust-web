@@ -5,21 +5,21 @@ use diesel::{Identifiable,Queryable,Selectable};
 use diesel::query_dsl::BelongingToDsl;
 use crate::schema::*;
 
-    #[derive(Identifiable,Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]
-    pub struct Product {
-        pub id: i32,
-        pub name: String,
-        pub cost: f64,
-        pub active: bool,
-    }
+#[derive(Identifiable,Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]
+pub struct Product {
+    pub id: i32,
+    pub name: String,
+    pub cost: f64,
+    pub active: bool,
+}
 
 
 
-    #[derive(Identifiable, Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]       
-    pub struct Variant {
-        pub id: i32,
-        pub name: String,
-    }
+#[derive(Identifiable, Queryable, Debug, Serialize, Deserialize,PartialEq,Selectable)]       
+pub struct Variant {
+    pub id: i32,
+    pub name: String,
+}
 
 
 
@@ -27,7 +27,6 @@ use crate::schema::*;
 #[derive(Identifiable,Associations, Queryable, Debug, Serialize, Deserialize,PartialEq,Eq,Selectable)]
 #[diesel(table_name = products_variants)]      
 #[diesel(belongs_to(Product, foreign_key = product_id))]
-//#[belongs_to(Product, foreign_key = "product_id")]
 pub struct ProductVariant {
     pub id: i32,
     pub product_id: i32,

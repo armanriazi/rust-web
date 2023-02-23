@@ -3,5 +3,5 @@ CREATE TABLE sales (
     date: VARCHAR NULL,
     tax_total: INTEGER NOT NULL,
     sub_total: INTEGER NOT NULL,
-    total: INTEGER NULL
+    total: INTEGER NOT NULL
 )
