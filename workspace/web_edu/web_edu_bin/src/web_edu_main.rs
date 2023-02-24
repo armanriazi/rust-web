@@ -54,6 +54,31 @@ use ::web_edu_lib::model::*;
 use ::web_edu_lib::viewmodel::viewmodel::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
 use web_edu_lib::schema::{self};
 
+fn main() {
+    
+    println!("The products are: {:#?}", list_products());
+    //let results = index_list_products();
+    //println!("Displaying {} products", results.len());
+    // for product in results {
+    //     println!("{}", product.name);
+    //     println!("----------\n");
+    //     println!("{}", product.cost);
+    // }
+    //
+    //println!("The products with variants are: {:#?}", list_products_variants());
+}
+
+fn list_products() -> Vec<Product> {
+    use schema::products::dsl::*;
+    let  conn = &mut establish_connection();
+    products
+    //.select(name)
+    .limit(10)
+    .load::<Product>(conn)
+    .expect("Error loading products")
+}
+
+
 /*fn main() {
     use schema::products::dsl::*;
     println!("The products are: {:#?}", index_list_products(products::table()));
@@ -83,27 +108,3 @@ use web_edu_lib::schema::{self};
 //     .load::<T>(&mut conn)
 //     //.expect("Error loading products")
 // }
-
-fn main() {
-    
-    println!("The products are: {:#?}", list_products());
-    //let results = index_list_products();
-    //println!("Displaying {} products", results.len());
-    // for product in results {
-    //     println!("{}", product.name);
-    //     println!("----------\n");
-    //     println!("{}", product.cost);
-    // }
-    //
-    //println!("The products with variants are: {:#?}", list_products_variants());
-}
-
-fn list_products() -> Vec<Product> {
-    use schema::products::dsl::*;
-    let  conn = &mut establish_connection();
-    products
-    //.select(name)
-    .limit(10)
-    .load::<Product>(conn)
-    .expect("Error loading products")
-}

@@ -7,11 +7,11 @@
 /// # Commands
 /// > `Test per unit`
 /// 
-/// ```cargo test -q -p web_edu_lib show_product_variants_test  -- --exact  --show-output```
+/// ```cargo test -q -p web_edu_lib show_product_variants_test  --  --show-output```
 ///
-/// ```cargo test -q -p web_edu_lib show_products_variants_test  -- --exact  --show-output```
+/// ```cargo test -q -p web_edu_lib show_products_variants_test  --  --show-output```
 ///
-/// ```cargo test -q -p web_edu_lib search_products_test  -- --exact  --show-output```
+/// ```cargo test -q -p web_edu_lib search_products_test  --  --show-output```
 /// 
 /// > > ` Library `
 /// ```cargo test -q -p web_edu_lib```

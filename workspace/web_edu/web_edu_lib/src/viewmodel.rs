@@ -106,7 +106,7 @@ pub mod viewmodel {
 
     pub mod model_sales {
 
-        use crate::schema::sales;
+        use crate::schema::sales::{self, sub_total};
         use diesel::{Insertable,AsChangeset};
         use serde::{Deserialize, Serialize};
         
@@ -115,10 +115,23 @@ pub mod viewmodel {
         pub struct NewSale {
             pub date: String,
             pub tax_total: i32,
-            pub sub_total: i32,
-            pub total: i32
+            pub sub_total: i32,     
+            #[serde(skip)]    
+            total: i32
         }
 
+        impl  NewSale{
+         pub fn new(_date:String,_tax_total:i32,_sub_total:i32) -> NewSale{
+
+            NewSale {
+            date: _date,
+            tax_total: _tax_total,
+            sub_total: _sub_total,
+            total: _tax_total + _sub_total
+            }            
+        }
+
+        }
     }
 
 

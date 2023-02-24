@@ -7,7 +7,7 @@
 /// # Commands
 /// > `Test per unit`
 /// 
-/// ```cargo test -q -p web_edu_lib delete_product_test  -- --exact  --show-output```
+/// ```cargo test -q -p web_edu_lib delete_product_test  --  --show-output```
 /// 
 /// > > ` Library `
 /// ```cargo test -q -p web_edu_lib```
