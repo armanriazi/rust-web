@@ -49,62 +49,36 @@
 extern crate diesel; // imported due to form edit include update, delete
 use web_edu_lib::core::connection::establish_connection;
 use diesel::{RunQueryDsl, QueryDsl};
-//use web_edu_lib::core::connection::establish_connection_test;
+use web_edu_lib::core::connection::establish_connection_test;
 use ::web_edu_lib::model::*;
 use ::web_edu_lib::viewmodel::viewmodel::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
 use web_edu_lib::schema::{self};
 
-fn main() {
-    
-    println!("The products are: {:#?}", list_products());
-    //let results = index_list_products();
-    //println!("Displaying {} products", results.len());
-    // for product in results {
-    //     println!("{}", product.name);
-    //     println!("----------\n");
-    //     println!("{}", product.cost);
-    // }
-    //
-    //println!("The products with variants are: {:#?}", list_products_variants());
-}
+use actix_web::{web, App, HttpServer, Responder, HttpResponse, Result};
 
-fn list_products() -> Vec<Product> {
-    use schema::products::dsl::*;
-    let  conn = &mut establish_connection();
-    products
-    //.select(name)
-    .limit(10)
-    .load::<Product>(conn)
-    .expect("Error loading products")
-}
+use ::web_edu_lib::models::NewCompleteProduct;
 
 
-/*fn main() {
-    use schema::products::dsl::*;
-    println!("The products are: {:#?}", index_list_products(products::table()));
-    //println!("The products with variants are: {:#?}", list_products_variants());
+// This endpoint will create a new product, we just call the 
+// create_product function and expect a response, if everything is ok we just
+// return a 200 response like this: HttpResponse::Ok(), otherwise
+// we can return a 500 internal server error. 
+async fn product_create(product: web::Json<NewCompleteProduct>) -> Result<impl Responder> {
+	let connection = establish_connection();
+	match create_product(product.clone(), &connection) {
+		Ok(_) => Ok(HttpResponse::Ok()),
+		Err(error) => Err(actix_web::error::ErrorInternalServerError(error))
+	}
 }
- fn index_list_products( query: use schema::products::dsl::BoxedQuery<diesel::sqlite::Sqlite>) -> Vec<Product>
-    where
-           T: diesel::Table +
-           diesel::query_builder::AsQuery,<T as diesel::query_builder::AsQuery>::Query: QueryId
-  {
-    
-    let  mut conn = establish_connection_test();
-     query    
-    .limit(10)
-    .load::<Product>(&mut conn)
-    //.expect("Error loading products")
-}*/
-//  fn index_list_products<'a, C, T>(query: T)->Result<Vec<C>,Error>
-//     where
-//            T: diesel::Table +
-//            diesel::query_builder::AsQuery,<T as diesel::query_builder::AsQuery>::Query: QueryId
-//   {
-    
-//     let  mut conn = establish_connection_test();
-//      query    
-//     .limit(10)
-//     .load::<T>(&mut conn)
-//     //.expect("Error loading products")
-// }
+
+// In the main function we can create the routes to our endpoints.
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .route("products", web::post().to(product_create))
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
+}

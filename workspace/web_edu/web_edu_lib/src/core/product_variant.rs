@@ -125,6 +125,7 @@ pub fn search_products_variants(search: String, conn: &mut SqliteConnection) -> 
 #[cfg(test)]
 mod tests {
 use crate::core::connection::establish_connection_test;
+use crate::core::product::product::show_product;
 use crate::viewmodel::viewmodel::{NewCompleteProduct, NewVariantValue};
 use diesel::result::Error;
 use diesel::Connection;
@@ -134,6 +135,10 @@ use crate::viewmodel::viewmodel::model_product::{NewProduct};
 use crate::viewmodel::viewmodel::model_variant::{NewVariant, Variant};
 use crate::model::*;
 
+    
+   sql_function!{
+    fn last_insert_rowid()-> diesel::sql_types::Integer;
+   }
 
 #[test]
 fn show_products_variants_test() {
@@ -306,7 +311,7 @@ fn show_product_variants_test() {
             }, connection).unwrap();
 
         assert_eq!(
-            serde_json::to_string(&crate::core::product::product::show_product(product_id, connection).unwrap()).unwrap(),
+            serde_json::to_string(&show_product(product_id, connection).unwrap()).unwrap(),
             serde_json::to_string(
                 &(
                     Product {
