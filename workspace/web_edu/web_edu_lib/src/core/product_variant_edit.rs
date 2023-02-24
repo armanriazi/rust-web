@@ -90,14 +90,14 @@ pub fn update_product_variant(product_id: i32, form_product: FormProduct, conn: 
 mod tests {
 use crate::core::connection::establish_connection_test;
 use crate::core::product::product::show_product;
+use crate::core::product_variant_create::product_variant::create_product_variant;
 use crate::core::product_variant_edit::product_variant_edit::update_product_variant;
 use crate::model::{ProductVariant, Product};
 use crate::viewmodel::viewmodel::model_product_edit::{FormProductVariantComplete, FormProductVariant, FormVariant};
-use crate::viewmodel::viewmodel::model_product_variant::*;
 use crate::viewmodel::viewmodel::{NewCompleteProduct, NewVariantValue};
 use diesel::result::Error;
 use diesel::{Connection, Table, RunQueryDsl};
-use crate::core::product_variant::product_variant::{create_product_variant};
+use crate::core::product_variant_create::*;
 use crate::viewmodel::viewmodel::model_product::{NewProduct};
 use crate::viewmodel::viewmodel::model_variant::{NewVariant, Variant};
 use crate::{schema, viewmodel::viewmodel::model_product_edit::FormProduct};

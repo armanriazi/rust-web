@@ -40,21 +40,12 @@
 
 pub mod product{
 use crate::model::Product;
-use crate::viewmodel::viewmodel::model_product::*;
-use crate::viewmodel::viewmodel::model_variant::*;
-use crate::viewmodel::viewmodel::model_product_variant::*;
 use diesel::{RunQueryDsl, QueryDsl};
 use crate::schema;
 use diesel::sqlite::{SqliteConnection};
 use diesel::result::Error;
 
-pub fn create_product(new_product: &NewProduct, conn: &mut SqliteConnection) -> Result<usize, Error>  {
-    use schema::products::dsl::*;
-    diesel::insert_into(products)
-        .values(new_product)
-        .execute(conn)
-        //.expect("Error saving new product")
-}
+
 pub fn list_products(conn:  &mut SqliteConnection) -> Vec<Product> {
     use schema::products::dsl::*;
     products
@@ -80,28 +71,15 @@ mod tests {
 use diesel::result::Error;
 use diesel::{Connection};
 use crate::core::connection::establish_connection_test;
-use crate::core::product::product::{create_product, list_products, show_product};
+use crate::core::product::product::{list_products, show_product};
+use crate::core::product_create::product::create_product;
+use crate::core::product_variant_create::*;
 use crate::model::Product;
 use crate::viewmodel::viewmodel::{NewVariantValue, NewCompleteProduct};
 use crate::viewmodel::viewmodel::model_product::{NewProduct};
 use crate::viewmodel::viewmodel::model_variant::{NewVariant};
 
 
-#[test]
-fn create_product_test() {
-    let  connection = &mut establish_connection_test();
-    let _ =  &connection.test_transaction::<_, Error, _>(|connection| {
-        let results = 
-            create_product(&NewProduct {
-                name: "boots".to_string(),
-                cost: 13.23,
-                active: true
-            }, connection);
-        assert_eq!(Ok(1), results);
-
-        Ok(())
-    });
-}
 
 #[test]
 fn list_products_test() {
@@ -153,11 +131,13 @@ fn list_products_test() {
 
 #[test]
 fn show_product_test() {
+    use crate::core::product_variant_create::product_variant::*;
+    
     let  connection = &mut establish_connection_test();
     connection.test_transaction::<_, Error, _>(|connection| {
         
         let product_id =
-        crate::core::product_variant::product_variant::create_product_variant(&NewCompleteProduct {
+        create_product_variant(&NewCompleteProduct {
             product: NewProduct {
                 name: "boots".to_string(),
                 cost: 13.23,

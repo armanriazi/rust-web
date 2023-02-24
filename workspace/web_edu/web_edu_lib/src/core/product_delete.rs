@@ -56,27 +56,28 @@ pub fn delete_product(id: i32, conn: &mut SqliteConnection) ->  Result<i32> {
 #[warn(unused_must_use)]
 #[cfg(test)]
 mod tests {
+use diesel::connection::SimpleConnection;
 use diesel::result::Error;
 use diesel::{Connection, RunQueryDsl};
 use crate::core::connection::establish_connection_test;
 use crate::core::product::product::{ show_product};
 use crate::core::product_delete::product::delete_product;
-use crate::core::product_variant::product_variant::create_product_variant;
+use crate::core::product_variant_create::product_variant::*;
 use crate::model::ProductVariant;
 use crate::viewmodel::viewmodel::{NewVariantValue, NewCompleteProduct};
 use crate::viewmodel::viewmodel::model_product::{NewProduct};
 use crate::viewmodel::viewmodel::model_variant::{NewVariant};
 use crate::schema;
-use crate::viewmodel::viewmodel::model_product_variant::*;
 
 /// We need to be aware that SQLite does not enforce foreign keys, so we need to tell the database with the following command: connection.execute("PRAGMA foreign_keys = ON").
 #[test]
 #[should_panic(expected = "NotFound")]
 fn delete_product_test() {
-    use schema::products_variants::dsl::products_variants;
+    use schema::products_variants::dsl::*;
     let connection = &mut establish_connection_test();
-   // connection.execute("PRAGMA foreign_keys = ON").unwrap();
+    connection.batch_execute("PRAGMA foreign_keys = ON").unwrap();
     connection.test_transaction::<_, Error, _>(|connection| {
+     
         let created_product_id =
             create_product_variant(&NewCompleteProduct {
                 product: NewProduct {

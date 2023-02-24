@@ -2,16 +2,18 @@
 ///
 pub mod viewmodel {
 
+    use serde::{Deserialize, Serialize};
+
     use self::model_product::NewProduct;
     use self::model_variant::NewVariant;
 
     /// We might need additional models that have a different purpose and that aren’t connected to a table for our business logic.
-    #[derive(Clone)]
+    #[derive(Clone, Serialize, Deserialize)]
     pub struct NewVariantValue {
         pub variant: NewVariant,
         pub values: Vec<Option<String>>,
     }
-
+    #[derive(Clone, Serialize, Deserialize)]
     pub struct NewCompleteProduct {
         pub product: NewProduct,
         pub variants: Vec<NewVariantValue>,
@@ -26,7 +28,8 @@ pub mod viewmodel {
 
         /// This struct will be our model for inserting data in our database.
         /// Therefore, we need it to be Insertable, We also need to give it the name of our table.
-        #[derive(Insertable, Debug, AsChangeset)]
+
+        #[derive(Insertable, Debug, AsChangeset, Serialize, Deserialize, Clone)]
         //#[table_name="products"] //v1
         #[diesel(table_name = products)]
         pub struct NewProduct {
@@ -48,6 +51,7 @@ pub mod viewmodel {
             pub name: String,
         }
 
+        #[derive(Serialize, Deserialize)]
         #[derive(Insertable, Debug, Clone)]
         #[diesel(table_name = variants)]
         pub struct NewVariant {

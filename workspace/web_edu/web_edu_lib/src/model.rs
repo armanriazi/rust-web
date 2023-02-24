@@ -35,7 +35,7 @@ pub struct ProductVariant {
 }
 
 
-#[derive(Identifiable, Queryable, Clone, Debug, PartialEq, Serialize, Deserialize,Selectable)]
+#[derive(Identifiable, Queryable, Clone, Debug, PartialEq, Serialize, Deserialize,Selectable,Eq)]
 #[diesel(table_name = sales)]   
 pub struct Sale {
     pub id: i32,
