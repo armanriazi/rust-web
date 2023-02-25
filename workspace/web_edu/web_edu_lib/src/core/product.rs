@@ -46,12 +46,12 @@ use diesel::sqlite::{SqliteConnection};
 use diesel::result::Error;
 
 
-pub fn list_products(conn:  &mut SqliteConnection) -> Vec<Product> {
+pub fn list_products(limit : i64, conn:  &mut SqliteConnection) -> Result<Vec<Product>, Error> {
     use schema::products::dsl::*;
     products
-        .limit(10)
+        .limit(limit)
         .load::<Product>(conn)
-        .expect("Error loading products")
+       // .expect("Error loading products")
 }
 pub fn show_product(id: i32, conn: &mut SqliteConnection) -> Result<Product, Error> {
     use schema::products::dsl::*;
@@ -102,7 +102,7 @@ fn list_products_test() {
             active: true
         }, connection);
 
-        assert_eq!(serde_json::to_string(&list_products(connection)).unwrap(), 
+        assert_eq!(serde_json::to_string(&list_products(10 as i64,connection)).unwrap(), 
             serde_json::to_string(&vec![
                 Product {
                     id: 1,

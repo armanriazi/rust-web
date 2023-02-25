@@ -75,13 +75,13 @@ pub mod product_variant{
     fn last_insert_rowid()-> diesel::sql_types::Integer;
    }
 
-pub fn list_products_variants(conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
+pub fn list_products_variants(limit : i64, conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
     use schema::products::dsl::*;
     use schema::variants::dsl::*;
 
     let products_result=  products
         //.select(name)
-        .limit(10)
+        .limit(limit)
         .load::<Product>(conn)?;
        
 
@@ -246,7 +246,7 @@ fn show_products_variants_test() {
             ]
         };
 
-        assert_eq!(serde_json::to_string(&list_products_variants(connection).unwrap()).unwrap(), 
+        assert_eq!(serde_json::to_string(&list_products_variants(10 as i64,connection).unwrap()).unwrap(), 
             serde_json::to_string(&vec![
                 (
                     Product {
