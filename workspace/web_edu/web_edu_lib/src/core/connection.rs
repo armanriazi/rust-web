@@ -5,19 +5,23 @@ use dotenv::dotenv;
 use std::env;
 
 pub fn establish_connection() -> SqliteConnection {
-    dotenv().ok();
 
-    let database_url = env::var("SQLITE_WEB_EDU_DATABASE_URL")
-        .expect("SQLITE_WEB_EDU_DATABASE_URL must be set");
-    SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
+
+    SqliteConnection::establish(&database_url().unwrap())
+        .expect(&format!("Error connecting to {}", &database_url().unwrap()))
 }
 
 pub fn establish_connection_test() -> SqliteConnection {
-    dotenv().ok();
 
-    let database_url = env::var("TEST_SQLITE_WEB_EDU_DATABASE_URL")
-        .expect("TEST_SQLITE_WEB_EDU_DATABASE_URL must be set");
-    SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
+    SqliteConnection::establish(&database_test_url().unwrap())
+        .expect(&format!("Error connecting to {}", &database_test_url().unwrap()))
+}
+
+pub fn database_url()-> Result<String,dotenv::Error>{
+    dotenv().ok();
+    Ok(env::var("SQLITE_WEB_EDU_DATABASE_URL").expect("SQLITE_WEB_EDU_DATABASE_URL must be set"))
+}
+pub fn database_test_url()-> Result<String,dotenv::Error>{
+    dotenv().ok();
+    Ok(env::var("TEST_SQLITE_WEB_EDU_DATABASE_URL").expect("TEST_SQLITE_WEB_EDU_DATABASE_URL must be set"))
 }

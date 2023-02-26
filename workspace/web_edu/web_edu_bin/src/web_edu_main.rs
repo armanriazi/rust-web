@@ -22,18 +22,12 @@
 /// ```cargo test --doc  --package web_edu_bin```
 ///
 /// > > ` Library `
-/// ```cargo run -q -p web_edu_lib```
+/// ```cargo test -q -p web_edu_lib```
 ///
 /// ```cargo doc  --package web_edu_lib --message-format short --no-deps --open --color always```
 ///
 /// ```cargo test --doc  --package web_edu_lib```
 ///
-/// > > ` Model `
-/// ```cargo run -q -p web_edu_model```
-///
-/// ```cargo doc  --package web_edu_model --message-format short --no-deps --open --color always```
-///
-/// ```cargo test --doc  --package web_edu_model```
 ///
 /// ## What
 /// `TODO`
@@ -52,686 +46,201 @@
 /// `TODO`
 
 #[macro_use]
+extern crate log;
 extern crate diesel; // imported due to form edit include update, delete
-use web_edu_lib::core::connection::establish_connection;
-use diesel::sqlite::SqliteConnection;
-use diesel::result::Error;
-use anyhow::Result;
-use diesel::{RunQueryDsl, GroupedBy, QueryDsl, BelongingToDsl, TextExpressionMethods};
-use web_edu_lib::core::connection::establish_connection_test;
-use ::web_edu_lib::model::model::model_product::*;
-use ::web_edu_lib::model::model::model_product_variant::*;
-//use ::web_edu_lib::model::model::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
-use web_edu_lib::schema::{products,products_variants, self};
+extern crate r2d2;
+extern crate r2d2_diesel;
 
-no_arg_sql_function!(last_insert_rowid, diesel::sql_types::Integer);// imported due to form edit include update, delete
-
-/*fn main() {
-    use schema::products::dsl::*;
-    println!("The products are: {:#?}", index_list_products(products::table()));
-    //println!("The products with variants are: {:#?}", list_products_variants());
+use diesel::prelude::*;
+use r2d2_diesel::ConnectionManager;
+use r2d2::{Pool, ManageConnection};
+use web_edu_lib::core::{connection::establish_connection, product_variant_create::product_variant::create_product_variant, product::product::list_products, product_variant::product_variant::list_products_variants};
+use diesel::{RunQueryDsl, QueryDsl, SqliteConnection, Connection};
+//use ::web_edu_lib::viewmodel::viewmodel::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
+use web_edu_lib::schema::{*, self};
+use web_edu_lib::core::connection::{database_url, database_test_url};
+use actix_web::middleware::Logger;
+use actix_web::{web::{self, Data}, middleware,  App, Error as AWError, HttpServer, Responder, HttpResponse,HttpRequest, Result, post, get};
+use web_edu_lib::viewmodel::viewmodel::NewCompleteProduct;
+use serde::{Deserialize, Serialize};
+use r2d2_sqlite::{self, SqliteConnectionManager};
+//
+type DbError = Box<dyn std::error::Error + Send + Sync>;
+type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+//
+#[derive(Deserialize)]
+struct QueryParamsList {
+	limit: i64
 }
- fn index_list_products( query: use schema::products::dsl::BoxedQuery<diesel::sqlite::Sqlite>) -> Vec<Product>
-    where
-           T: diesel::Table +
-           diesel::query_builder::AsQuery,<T as diesel::query_builder::AsQuery>::Query: QueryId
-  {
-    
-    let  mut conn = establish_connection_test();
-     query    
-    .limit(10)
-    .load::<Product>(&mut conn)
-    //.expect("Error loading products")
-}*/
-//  fn index_list_products<'a, C, T>(query: T)->Result<Vec<C>,Error>
-//     where
-//            T: diesel::Table +
-//            diesel::query_builder::AsQuery,<T as diesel::query_builder::AsQuery>::Query: QueryId
-//   {
-    
-//     let  mut conn = establish_connection_test();
-//      query    
-//     .limit(10)
-//     .load::<T>(&mut conn)
-//     //.expect("Error loading products")
+
+// // This is like we can do a /products?limit=10
+// // We need to pass the query parameters through a web::Query wrapper. 
+// async fn product_list(pool: web::Data<DbPool>,query_param_list: web::Query<QueryParamsList>)
+// 	-> Result<impl Responder> {
+  //use schema::products::dsl::*;
+//   let list = web::block(move ||  {
+//     let mut conn = pool.get().expect("couldn't get db connection from pool");
+//     match  actions::list_products(query_param_list.limit,  &mut conn)                
+//      {
+//       Ok(products) => Ok(web::Json(products)),
+//       Err(error) => Err(actix_web::error::ErrorInternalServerError(error))
+//     }
+//   })?;
+//    Ok(HttpResponse::Ok().json(list))
 // }
-fn main() {
-    println!("The products are: {:#?}", index_list_products());
-    //println!("The products with variants are: {:#?}", list_products_variants());
-}
-
-fn index_list_products() -> Vec<Product> {
-    use schema::products::dsl::*;
-    let  conn = establish_connection_test();
-    products
-    .select(name)
-    .limit(1)
-    .load::<Product>(&conn)
-    .expect("Error loading products")
-}
-
-/* 
-
-
-
-
-fn show_product(id: i32, conn: &SqliteConnection) -> Result<Product, Error> {
-    use ::web_edu_lib::schema::products::dsl::products;
-
-    products
-        .find(id)
-        .first(conn)
-}
-
-
-/// We use get_result instead of first because the return type has the trait BelongingToDsl implemented.
-/// We use the belonging_to function in the ProductVariant struct because we use a foreign key, and Diesel automatically assigns the required trait for the association.
-fn show_product_variant(id: i32, conn: &mut SqliteConnection) -> Result<(Product, Vec<(ProductVariant, Variant)>), Error> {
-    use ::web_edu_lib::schema::products::dsl::products;
-    use ::web_edu_lib::schema::variants::dsl::variants;
-
-    let product_result =
-        products
-            .find(id)
-            .get_result::<Product>(conn)?;
-
-    let variants_result =
-        ProductVariant::belonging_to(&product_result)
-            .inner_join(variants)
-            .load::<(ProductVariant, Variant)>(conn)?;
-
-    Ok((product_result, variants_result))
-}
-
-
-
-fn search_products(search: String, conn: &mut SqliteConnection) -> Result<Vec<(Product, Vec<(ProductVariant, Variant)>)>, Error> {
-    use ::web_edu_lib::schema::products::dsl::*;
-    use ::web_edu_lib::schema::variants::dsl::variants;
-
-    let pattern = format!("%{}%", search);
-    let products_result = 
-        products
-        .filter(name.like(pattern))
-        .load::<Product>(conn)?;
-    let variants_result =
-        ProductVariant::belonging_to(&products_result)
-            .inner_join(variants)
-            .load::<(ProductVariant, Variant)>(conn)?
-            .grouped_by(&products_result);
-    let data = products_result.into_iter().zip(variants_result).collect::<Vec<_>>();
-
-    Ok(data)
-}
-
-/// We start updating the product, then loop through the variants and check if the field variant_id from product_variant is none. If so, it means we have a new variant, 
-/// so we create and get the id. We add mut in the loop because we need to change the object later.
-///
-///We check if product_variant has an id so we can find out if we need to update a found record or create a new one.
-
-
-fn update_product(product_id: i32, form_product: FormProduct, conn: &mut SqliteConnection) -> Result<i32> {
-    use ::web_edu_lib::schema::products::dsl::products;
-    use ::web_edu_lib::schema::variants;
-    use ::web_edu_lib::schema::products_variants::dsl::products_variants;
-    // We begin a transaction, just to make sure everything runs successfully
-    conn.transaction(|conn| {
-        diesel::update(products.find(product_id))
-            .set(&form_product.product)
-            .execute(conn)?;
-
-        // We just loop through all variants available
-        for mut form_product_variant in form_product.variants {
-            // If there's no variant id, we probably need to insert a new one.
-            if form_product_variant.product_variant.variant_id.is_none() {
-                diesel::insert_into(variants::dsl::variants)
-                    .values(form_product_variant.variant)
-                    .execute(conn)?;
-
-                let last_variant_id: i32 =
-                        diesel::select(last_insert_rowid).first(conn)?;
-
-                form_product_variant.product_variant.variant_id = Some(last_variant_id);            
-            }
-            // We have an id, so we should update the variant product.
-            if let Some(product_variant_id) = form_product_variant.product_variant.id {
-                diesel::update(products_variants.find(product_variant_id))
-                    .set(&form_product_variant.product_variant)
-                    .execute(conn)?;
-            }
-        }
-
-        Ok(product_id)
-    })
-}
-
-fn delete_product(id: i32, conn: &SqliteConnection) ->  Result<i32> {    
-    use ::web_edu::schema::products::dsl::products;
-    diesel::delete(products.find(id))
-        .execute(conn)?;
-
-    Ok(id)
-}
- */
-//-------------------------------tests------------------
-// impl<T: Display> Display for Complex<T> {
-//     fn fmt(&self, f: &mut Formatter) -> Result {
-//         write!(f, "{} + {}i", self., self.)
+// /// Our list endpoint, just make a call to list_product and pattern match
+// /// the result, if everything is ok we're supposed to return a list of products
+// /// as a json object with web::Json(products), otherise just return a 500 error.
+// async fn products_variants_list(conn:web::Data<SqliteConnection>)
+//     -> Result<impl Responder> {
+   //use schema::products_variants::dsl::*;     
+//     match list_products_variants(10 as i64,&mut conn) {
+//         Ok(products) => Ok(web::Json(products)),
+//         Err(error) => Err(actix_web::error::ErrorInternalServerError(error))
 //     }
 // }
-#[cfg(test)]
-mod tests {
-use super::*;
-use diesel::query_dsl::QueryDsl;
-use diesel::RunQueryDsl;
-use diesel::result::Error;
-use diesel::Connection;
-use ::web_edu_lib::core::connection::establish_connection_test;
-use web_edu_lib::core::product::product::create_product;
-use ::web_edu_lib::model::model::model_product::{Product, NewProduct};
-//use ::web_edu_lib::model::model::model_product::{Product, NewCompleteProduct, NewProduct, NewVariantValue, NewVariant, ProductVariant, Variant};
-// use ::web_edu::schema::products_variants::dsl::*;
-// use ::web_edu::schema::products::dsl::*;
-// use ::web_edu::schema::variants;
-//
 
-pub fn index_list_products(conn: & SqliteConnection) -> Vec<Product> {
-    use web_edu_lib::schema::products::dsl::*;
-    products
-        .limit(10)
-        .load::<Product>(conn)
-        .expect("Error loading products")
+// This endpoint will create a new product, we just call the 
+// create_product function and expect a response, if everything is ok we just
+// return a 200 response like this: HttpResponse::Ok(), otherwise
+// we can return a 500 internal server error. 
+async fn product_create(product: web::Json<NewCompleteProduct>) -> Result<impl Responder> {
+	let connection = &mut establish_connection();
+	match create_product_variant(&product, connection) {
+		Ok(_) => Ok(HttpResponse::Ok()),
+		Err(error) => Err(actix_web::error::ErrorInternalServerError(error))
+	}
 }
 
 
+//----------------------------------------------//
 
-#[test]
-fn test_index_list_products() {
-    use ::web_edu_lib::schema::products::dsl::*;
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Hello world!")
+}
 
-    let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|connection| {
-        create_product(NewProduct {
-            name: "boots".to_string(),
-            cost: 13.23,
-            active: true
-        }, connection);
-        create_product(NewProduct {
-            name: "high heels".to_string(),
-            cost: 20.99,
-            active: true
-        }, connection);
-        create_product(NewProduct {
-            name: "running shoes".to_string(),
-            cost: 10.99,
-            active: true
-        }, connection);
+#[post("/echo")]
+async fn echo(req_body: String) -> impl Responder {
+    HttpResponse::Ok().body(req_body)
+}
 
-        assert_eq!(serde_json::to_string(&index_list_products(&connection)).unwrap(), 
-            serde_json::to_string(&vec![
-                Product {
-                    id: 1,
-                    name: "boots".to_string(),
-                    cost: 13.23,
-                    active: true
-                },
-                Product {
-                    id: 2,
-                    name: "high heels".to_string(),
-                    cost: 20.99,
-                    active: true
-                },
-                Product {
-                    id: 3,
-                    name: "running shoes".to_string(),
-                    cost: 10.99,
-                    active: true
-                }
-            ]).unwrap());
+async fn manual_hello() -> impl Responder {
+    HttpResponse::Ok().body("Hey there!")
+}
 
-        Ok(())
 
-    });
-  }
+#[derive(Serialize, Deserialize)]
+struct Person {
+	name: String,
+	age: i32
+}
 
-//
+async fn greet(req: HttpRequest) -> Result<impl Responder> {
+    let name = req.match_info().get("name").unwrap_or("World");
+   	if name == "Error" {
+		Err(actix_web::error::ErrorInternalServerError("an error"))
+	} else {
+		Ok(web::Json(Person { name: "Peter Parker".to_string(), age: 32 }))
+	}
+}
 
-#[test]
-fn show_product_test() {
+//---------------------------//
 
-    let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|connection| {
-        let product_id =
-            create_product(NewCompleteProduct {
-                product: NewProduct {
-                    name: "boots".to_string(),
-                    cost: 13.23,
-                    active: true
-                },
-                variants: vec![
-                    NewVariantValue {
-                        variant: NewVariant {
-                            name: "size".to_string()
-                        },
-                        values: vec![
-                            Some(12.to_string()),
-                            Some(14.to_string()),
-                            Some(16.to_string()),
-                            Some(18.to_string())
-                        ]
-                    }
-                ]
-            }, connection).unwrap();
+#[derive(Debug)]
+pub enum Error {
+    ConnectionError(ConnectionError),
+    QueryError(diesel::result::Error),
+}
 
-        assert_eq!(
-            serde_json::to_string(&show_product(product_id.try_into().unwrap(), &connection).unwrap()).unwrap(),
-            serde_json::to_string(
-                &Product {
-                    id: 1,
-                    name: "boots".to_string(),
-                    cost: 13.23,
-                    active: true
-                }
-            ).unwrap()
-        );
+// In the main function we can create the routes to our endpoints.
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+  	env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));   
+     
+     let manager = SqliteConnectionManager::file(database_url().unwrap().as_str());
+    let pool = r2d2::Pool::builder().build(manager).expect("Failed to create pool.");
 
-        Ok(())
-    });
-  }
-  
-  //
+    HttpServer::new(move|| {
+        App::new()
+            .wrap(Logger::new("%a %{User-Agent}i"))
+            .service(hello)
+            .service(echo)
+            .app_data(web::Data::new(pool.clone()))
+            .route("/{name}", web::get().to(greet))
+            .route("/hey", web::get().to(manual_hello))
+            .route("products", web::post().to(product_create))
+            //.route("products", web::get().to(product_list)) // our route to list products
+    })
+    .bind(("0.0.0.0", 8080))?
+    .run()
+    .await
+}
 
-#[test]
-fn show_product_variant_test() {
 
-    let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|connection| {
-        let product_id =
-            create_product(NewCompleteProduct {
-                product: NewProduct {
-                    name: "boots".to_string(),
-                    cost: 13.23,
-                    active: true
-                },
-                variants: vec![
-                    NewVariantValue {
-                        variant: NewVariant {
-                            name: "size".to_string()
-                        },
-                        values: vec![
-                            Some(12.to_string()),
-                            Some(14.to_string()),
-                            Some(16.to_string()),
-                            Some(18.to_string())
-                        ]
-                    }
-                ]
-            }, &mut connection).unwrap();
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::web::Bytes; 
+    use actix_web::{test, web, App};
+    use diesel::Connection;
+    use ::web_edu_lib::core::connection::establish_connection_test;
+    use web_edu_lib::viewmodel::viewmodel::model_product::NewProduct;
+    use web_edu_lib::viewmodel::viewmodel::model_variant::NewVariant;
+    use ::web_edu_lib::viewmodel::viewmodel::{NewCompleteProduct, NewVariantValue};    
 
-        assert_eq!(
-            serde_json::to_string(&show_product_variant(product_id.try_into().unwrap(), &mut connection).unwrap()).unwrap(),
-            serde_json::to_string(
-                &(
-                    Product {
-                        id: 1,
-                        name: "boots".to_string(),
-                        cost: 13.23,
-                        active: true
-                    },
-                    vec![
-                        (
-                            ProductVariant {
-                                id: 1,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "12".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        ),
-                        (
-                            ProductVariant {
-                                id: 2,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "14".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        ),
-                        (
-                            ProductVariant {
-                                id: 3,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "16".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        ),
-                        (
-                            ProductVariant {
-                                id: 4,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "18".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        )
-                    ]
-                )
-            ).unwrap()
-        );
+    #[actix_rt::test]
+    async fn test_index_get() {
+        let mut app = test::init_service(
+            App::new()
+                .route("/{name}", web::get().to(greet)),
+        )
+        .await;
+        let req = test::TestRequest::get().uri("/mundo").to_request();
+        let resp = test::read_response(&mut app, req).await;
 
-        Ok(())
-    });
-  }
+        assert_eq!(resp, Bytes::from_static(b"welcome"));
+    }
 
-  //
+    #[actix_rt::test]
+    async fn test_product_creation_is_ok() {
+        let connection = &mut establish_connection_test();
+        connection.begin_test_transaction().unwrap();
 
-/* 
-#[test]
-fn search_products_test() {
-    
-    use ::web_edu_lib::schema::variants::dsl::variants;
+        // We can mock the server with init_service.
+        let mut app = test::init_service(
+            App::new()
+              .data(connection)
+              .route("products", web::post().to(product_create))
+        ).await;
 
-    let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|connection| {
-        let variants = vec![
-            NewVariantValue {
+        let body =
+          NewCompleteProduct {
+            product: NewProduct {
+              name: "boots".to_string(),
+              cost: 13.23,
+              active: true
+            },
+            variants: vec![
+              NewVariantValue {
                 variant: NewVariant {
-                    name: "size".to_string()
+                  name: "size".to_string()
                 },
                 values: vec![
-                    Some(12.to_string()),
+                  Some(12.to_string()),
+                  Some(14.to_string()),
+                  Some(16.to_string()),
+                  Some(18.to_string())
                 ]
-            }
-        ];
+              }
+            ]
+          };
 
-        create_product(NewCompleteProduct {
-            product: NewProduct {
-                name: "boots".to_string(),
-                cost: 13.23,
-                active: true
-            },
-            variants: variants.clone()
-        }, connection).unwrap();
-        create_product(NewCompleteProduct {
-            product: NewProduct {
-                name: "high heels".to_string(),
-                cost: 20.99,
-                active: true
-            },
-            variants: variants.clone()
-        }, connection).unwrap();
-        create_product(NewCompleteProduct {
-            product: NewProduct {
-                name: "running shoes".to_string(),
-                cost: 10.99,
-                active: true
-            },
-            variants: variants.clone()
-        }, connection).unwrap();
+        // We test our endpoint by sending the body through a post request.
+        let req = test::TestRequest::post().set_json(&body).uri("/products").to_request();
+        let resp = test::call_service(&mut app, req).await;
 
-        assert_eq!(
-            serde_json::to_string(&search_products("shoes".to_string(), connection).unwrap()).unwrap(),
-            serde_json::to_string(&vec![
-                (
-                    Product {
-                        id: 3,
-                        name: "running shoes".to_string(),
-                        cost: 10.99,
-                        active: true
-                    },
-                    vec![
-                        (
-                            ProductVariant {
-                                id: 3,
-                                variant_id: 1,
-                                product_id: 3,
-                                value: Some(
-                                    "12".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        )
-                    ]
-                )
-            ]).unwrap()
-        );
-
-        Ok(())
-    });
-  }
-
-  //
-
-#[test]
-fn update_product_test() {
-    use ::web_edu_lib::schema::products::dsl::products;
-    use ::web_edu_lib::schema::variants;
-    use ::web_edu_lib::schema::products_variants::dsl::products_variants;
-
-    let mut connection = establish_connection_test();
-    connection.test_transaction::<_, Error, _>(|connection| {
-        let created_product_id =
-            create_product(NewCompleteProduct {
-                product: NewProduct {
-                    name: "boots".to_string(),
-                    cost: 13.23,
-                    active: true
-                },
-                variants: vec![
-                    NewVariantValue {
-                        variant: NewVariant {
-                            name: "size".to_string()
-                        },
-                        values: vec![
-                            Some(12.to_string()),
-                            Some(14.to_string()),
-                            Some(16.to_string()),
-                            Some(18.to_string())
-                        ]
-                    }
-                ]
-            }, connection).unwrap();
-
-        let vec_product_variant =
-            products_variants
-                .filter(product_id.eq(created_product_id))
-                .load::<ProductVariant>(&connection)
-                .unwrap();
-
-        let product_variant =
-            vec_product_variant
-                .first()
-                .unwrap();
-
-        update_product(
-            created_product_id,
-            FormProduct {
-                product: NewProduct {
-                    name: "high heels".to_string(),
-                    cost: 14.25,
-                    active: false
-                },
-                variants: vec![
-                    FormProductVariantComplete {
-                        variant: Some(FormVariant {
-                            id: None,
-                            name: "color".to_string()
-                        }),
-                        product_variant: FormProductVariant {
-                            id: None,
-                            product_id: created_product_id,
-                            variant_id: None,
-                            value: Some("Blue".to_string())
-                        }
-                    },
-                    FormProductVariantComplete {
-                        variant: None,
-                        product_variant: FormProductVariant {
-                            id: Some(product_variant.id),
-                            product_id: created_product_id,
-                            variant_id: Some(product_variant.variant_id),
-                            value: Some(50.to_string())
-                        }
-                    }
-                ]
-            },
-            &connection
-        ).unwrap();
-        
-        assert_eq!(
-            serde_json::to_string(&show_product(created_product_id, &connection).unwrap()).unwrap(),
-            serde_json::to_string(
-                &(
-                    Product {
-                        id: 1,
-                        name: "high heels".to_string(),
-                        cost: 14.25,
-                        active: false
-                    },
-                    vec![
-                        (
-                            ProductVariant {
-                                id: 1,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "50".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        ),
-                        (
-                            ProductVariant {
-                                id: 2,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "14".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        ),
-                        (
-                            ProductVariant {
-                                id: 3,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "16".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        ),
-                        (
-                            ProductVariant {
-                                id: 4,
-                                variant_id: 1,
-                                product_id: 1,
-                                value: Some(
-                                    "18".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 1,
-                                name: "size".to_string(),
-                            }
-                        ),
-                        (
-                            ProductVariant {
-                                id: 5,
-                                variant_id: 2,
-                                product_id: 1,
-                                value: Some(
-                                    "Blue".to_string(),
-                                ),
-                            },
-                            Variant {
-                                id: 2,
-                                name: "color".to_string(),
-                            }
-                        )
-                    ]
-                )
-            ).unwrap()
-        );
-
-        Ok(())
-    });
-  }
-
-  //
-
-#[test]
-#[should_panic(expected = "NotFound")]
-fn delete_product_test() {
-    use ::web_edu::schema::products_variants::dsl::products_variants;
-    let connection = establish_connection_test();
-    connection.execute("PRAGMA foreign_keys = ON").unwrap();
-    connection.test_transaction::<_, Error, _>(|| {
-        let created_product_id =
-            create_product(NewCompleteProduct {
-                product: NewProduct {
-                    name: "boots".to_string(),
-                    cost: 13.23,
-                    active: true
-                },
-                variants: vec![
-                    NewVariantValue {
-                        variant: NewVariant {
-                            name: "size".to_string()
-                        },
-                        values: vec![
-                            Some(12.to_string()),
-                            Some(14.to_string()),
-                            Some(16.to_string()),
-                            Some(18.to_string())
-                        ]
-                    }
-                ]
-            }, 
-            &connection).unwrap();
-        
-        delete_product(created_product_id, &connection).unwrap();
-
-        let vec_product_variants = products_variants.load::<ProductVariant>(&connection)?;
-        assert_eq!(vec_product_variants, vec![]);
-        show_product(created_product_id, &connection).unwrap();
-
-        Ok(())
-    });
-  }
-*/
+        // Expect a 200 response.
+        assert!(resp.status().is_success());
+    }
 }

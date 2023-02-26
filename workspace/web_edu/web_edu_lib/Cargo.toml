@@ -4,25 +4,24 @@ version = "0.1.0"
 authors = ["Arman Riazi"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[package.metadata]
-msrv="1.31.0"
 
 [dependencies]
-serde = "1.0.90"
+
+serde = {version="1.0.90", features = ["derive"],  optional = false , default-features = true}
 serde_derive = "1.0.90"
 diesel = {version = "2.0.0", features = ["sqlite"]}
+#diesel_codegen = { version = "0.16.0", features = ["sqlite"] }
 dotenv = "0.15.0"
-failure = "0.1.5"
 serde_json="1.0.0"
 shared = { path = "../../shared",  optional = false , default-features = true}
-anyhow="1.0.68"
+failure = "0.1.5"
+anyhow="1.0.20"
+
 
 [dev-dependencies]
 proptest = "1.0.0"
 pretty_assertions = "1.0.0"
-cfg-if = "1"
-dotenvy = "0.15"
+dotenvy = "0.15.6"
 
 [[test]]
 doc = true

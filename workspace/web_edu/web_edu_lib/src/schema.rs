@@ -2,7 +2,7 @@
 
 diesel::table! {
     products (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         name -> Text,
         cost -> Double,
         active -> Bool,
@@ -19,6 +19,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    sales (id) {
+        id -> Integer,
+        date -> Text,
+        tax_total -> Integer,
+        sub_total -> Integer,
+        total -> Integer,
+    }
+}
+
+diesel::table! {
     variants (id) {
         id -> Integer,
         name -> Text,
@@ -31,5 +41,6 @@ diesel::joinable!(products_variants -> variants (variant_id));
 diesel::allow_tables_to_appear_in_same_query!(
     products,
     products_variants,
+    sales,
     variants,
 );

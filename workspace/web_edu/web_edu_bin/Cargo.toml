@@ -4,10 +4,6 @@ version = "0.1.0"
 authors = ["Arman Riazi"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[package.metadata]
-msrv="1.31.0"
 
 [[bin]]
 doc = true
@@ -17,10 +13,21 @@ path = "src/web_edu_main.rs"
 
 [dependencies]
 web_edu_lib = { path = "../web_edu_lib",  optional = false , default-features = true}
-serde = "1.0.90"
+serde = {version="1.0.90", features = ["derive"],  optional = false , default-features = true}
 serde_derive = "1.0.90"
-diesel = {version = "2.0.0", features = ["sqlite"]}
+diesel = {version = "2.0.0", features = ["sqlite"] , default-features = true}
 dotenv = "0.15.0"
-failure = "0.1.5"
 serde_json="1.0.0"
+failure = "0.1.5"
 anyhow="1.0.20"
+actix-rt = "2.5.0"
+actix-web = "4.0.0"
+uuid = { version = "1.0.0", features = ["serde", "v4"] }
+chrono = { version = "0.4.15", features = ["serde"] }
+r2d2 = "0.8"
+r2d2_sqlite = "0.21.0" # 0.21.0 blocked on sqlx sqlite update
+rusqlite = "0.28.0" # 0.28.0 blocked on sqlx sqlite update
+r2d2-diesel = "0.10.0"
+log = "0.4.0"
+env_logger = "0.10.0"
+

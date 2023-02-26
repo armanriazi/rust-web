@@ -4,4 +4,4 @@
 [print_schema]
 file = "../web_edu_lib/src/schema.rs"
 [migrations_directory]
-dir = "migrations"
+dir = "./migrations"
