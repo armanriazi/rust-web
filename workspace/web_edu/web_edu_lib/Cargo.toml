@@ -6,6 +6,7 @@ edition = "2021"
 
 
 [dependencies]
+
 serde = {version="1.0.90", features = ["derive"],  optional = false , default-features = true}
 serde_derive = "1.0.90"
 diesel = {version = "2.0.0", features = ["sqlite"]}

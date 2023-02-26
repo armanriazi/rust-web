@@ -51,20 +51,23 @@ extern crate diesel; // imported due to form edit include update, delete
 extern crate r2d2;
 extern crate r2d2_diesel;
 
+use diesel::prelude::*;
 use r2d2_diesel::ConnectionManager;
-use r2d2::Pool;
-use std::thread;
+use r2d2::{Pool, ManageConnection};
 use web_edu_lib::core::{connection::establish_connection, product_variant_create::product_variant::create_product_variant, product::product::list_products, product_variant::product_variant::list_products_variants};
-use diesel::{RunQueryDsl, QueryDsl, SqliteConnection};
-use web_edu_lib::core::product_create::product::create_product;
+use diesel::{RunQueryDsl, QueryDsl, SqliteConnection, Connection};
 //use ::web_edu_lib::viewmodel::viewmodel::model_product_edit::{FormVariant, FormProductVariant, FormProductVariantComplete, FormProduct};
-use web_edu_lib::schema::*;
+use web_edu_lib::schema::{*, self};
+use web_edu_lib::core::connection::{database_url, database_test_url};
 use actix_web::middleware::Logger;
-use actix_web::{web::{self, Data}, App, HttpServer, Responder, HttpResponse,HttpRequest, Result, post, get};
+use actix_web::{web::{self, Data}, middleware,  App, Error as AWError, HttpServer, Responder, HttpResponse,HttpRequest, Result, post, get};
 use web_edu_lib::viewmodel::viewmodel::NewCompleteProduct;
 use serde::{Deserialize, Serialize};
 use r2d2_sqlite::{self, SqliteConnectionManager};
-
+//
+type DbError = Box<dyn std::error::Error + Send + Sync>;
+type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+//
 #[derive(Deserialize)]
 struct QueryParamsList {
 	limit: i64
@@ -74,7 +77,7 @@ struct QueryParamsList {
 // // We need to pass the query parameters through a web::Query wrapper. 
 // async fn product_list(pool: web::Data<DbPool>,query_param_list: web::Query<QueryParamsList>)
 // 	-> Result<impl Responder> {
-  
+  //use schema::products::dsl::*;
 //   let list = web::block(move ||  {
 //     let mut conn = pool.get().expect("couldn't get db connection from pool");
 //     match  actions::list_products(query_param_list.limit,  &mut conn)                
@@ -90,7 +93,7 @@ struct QueryParamsList {
 // /// as a json object with web::Json(products), otherise just return a 500 error.
 // async fn products_variants_list(conn:web::Data<SqliteConnection>)
 //     -> Result<impl Responder> {
-      
+   //use schema::products_variants::dsl::*;     
 //     match list_products_variants(10 as i64,&mut conn) {
 //         Ok(products) => Ok(web::Json(products)),
 //         Err(error) => Err(actix_web::error::ErrorInternalServerError(error))
@@ -142,27 +145,34 @@ async fn greet(req: HttpRequest) -> Result<impl Responder> {
 	}
 }
 
-type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+//---------------------------//
+
+#[derive(Debug)]
+pub enum Error {
+    ConnectionError(ConnectionError),
+    QueryError(diesel::result::Error),
+}
+
 // In the main function we can create the routes to our endpoints.
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-  	env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));    
-     let manager = ConnectionManager::<SqliteConnection>::new("db.sqlite");
+  	env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));   
+     
+     let manager = SqliteConnectionManager::file(database_url().unwrap().as_str());
     let pool = r2d2::Pool::builder().build(manager).expect("Failed to create pool.");
 
-    HttpServer::new(|| {
+    HttpServer::new(move|| {
         App::new()
             .wrap(Logger::new("%a %{User-Agent}i"))
-            .route("/{name}", web::get().to(greet))
             .service(hello)
             .service(echo)
             .app_data(web::Data::new(pool.clone()))
-             .route("/{name}", web::get().to(greet))
+            .route("/{name}", web::get().to(greet))
             .route("/hey", web::get().to(manual_hello))
             .route("products", web::post().to(product_create))
             //.route("products", web::get().to(product_list)) // our route to list products
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
@@ -194,7 +204,7 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_product_creation_is_ok() {
-        let connection = establish_connection_test();
+        let connection = &mut establish_connection_test();
         connection.begin_test_transaction().unwrap();
 
         // We can mock the server with init_service.

@@ -73,7 +73,6 @@ use diesel::{Connection};
 use crate::core::connection::establish_connection_test;
 use crate::core::product::product::{list_products, show_product};
 use crate::core::product_create::product::create_product;
-use crate::core::product_variant_create::*;
 use crate::model::Product;
 use crate::viewmodel::viewmodel::{NewVariantValue, NewCompleteProduct};
 use crate::viewmodel::viewmodel::model_product::{NewProduct};
@@ -102,7 +101,7 @@ fn list_products_test() {
             active: true
         }, connection);
 
-        assert_eq!(serde_json::to_string(&list_products(10 as i64,connection)).unwrap(), 
+        assert_eq!(serde_json::to_string(&list_products(10 as i64,connection).unwrap()).unwrap(), 
             serde_json::to_string(&vec![
                 Product {
                     id: 1,

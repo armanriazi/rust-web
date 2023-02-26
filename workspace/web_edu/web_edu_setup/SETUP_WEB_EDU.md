@@ -83,3 +83,12 @@ import_types = [ "crate::schema::*" ]
 import_types = ["diesel::sql_types::*", "diesel_full_text_search::types::*"]
 filter = { only_tables = ["products"] }
 ----
+
+
+> setup_db.sh
+```
+#!/usr/bin/env bash
+cd $(dirname "$0")
+sqlite3 ../weather.db < db.sql
+sqlite3 -csv ../weather.db ".import nyc_centralpark_weather.csv nyc_weather"
+```
