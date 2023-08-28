@@ -3,7 +3,5 @@ debug/
 release/
 rls/
 *.o
-*.sqlite
-db/
 *.vsidx
 *.wsuo

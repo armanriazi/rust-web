@@ -17,3 +17,4 @@ env_logger = "0.7.1"
 diesel = { version = "1.4.4", features = ["postgres", "r2d2", "chrono", "uuid"] }
 r2d2 = "0.8.8"
 r2d2-diesel = "1.0.0"
+

@@ -2,6 +2,7 @@
 
 - [TEMPLATE](TEMPLATE.md)
 - [RUST](rust/RUST.md)
+- [RUST WEB 2](RUST_WEB2.md)
 - [DIESEL](diesel/DIESEL.md)
 - [WEB_R3](./WEB_R3.md)
 

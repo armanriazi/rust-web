@@ -1,3 +1,5 @@
+
+#![allow(dead_code, unused_variables)]
 #[macro_use]
 extern crate actix_web;
 #[macro_use]
@@ -9,6 +11,36 @@ use actix_web::{middleware, App, HttpServer};
 use diesel::r2d2::ConnectionManager;
 use diesel::PgConnection;
 use r2d2::{Pool, PooledConnection};
+
+/// > `twitter-clone-rust`
+///
+/// # Commands
+/// 
+/// ```RUST_BACKTRACE=1 cargo run -q -p twitter-clone-rust```
+///
+/// ```cargo doc  --workspace --message-format short --no-deps --open --color always```
+///
+/// ```cargo check --workspace --message-format=short --all-targets```
+///
+/// ```cargo test --doc  --workspace```
+///
+/// ## What
+/// `TODO`
+///
+/// ## How
+/// `TODO`
+///
+/// # Arguments
+///
+/// * `Arg1` - This is the [your type] to [your verb] the [your struct/func name]
+///
+/// # Return
+/// `nothing`
+///
+/// ## Example
+/// `TODO`
+/// 
+
 
 mod constants;
 mod like;

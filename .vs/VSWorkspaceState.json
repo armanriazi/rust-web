@@ -2,15 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\workspace",
-    "\\workspace\\actix_actor",
-    "\\workspace\\actix_actor\\twitter-clone-rust",
-    "\\workspace\\rocket_orm",
-    "\\workspace\\rocket_orm\\pp",
-    "\\workspace\\rocket_orm\\pp\\pp-r_setup_01",
-    "\\workspace\\rocket_orm\\pp\\pp-r_setup_01\\site",
-    "\\workspace\\rocket_orm\\pp\\pp-r_setup_01\\src",
-    "\\workspace\\rocket_orm\\pp\\pp-web_bank"
+    "\\workspace\\diesel_orm",
+    "\\workspace\\diesel_orm\\diesel_v2",
+    "\\workspace\\diesel_orm\\diesel_v2\\postgres",
+    "\\workspace\\diesel_orm\\diesel_v2\\sqlite",
+    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\db",
+    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\diesel_demo_steps_sqlite",
+    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\diesel_demo_steps_sqlite\\src\\bin",
+    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\diesel_demo_steps_sqlite\\src\\core"
   ],
-  "SelectedNode": "\\workspace\\rocket_orm\\pp\\pp-r_setup_01\\src\\main.rs",
+  "SelectedNode": "\\workspace\\diesel_orm\\diesel_v2\\sqlite",
   "PreviewInSolutionExplorer": false
 }
