@@ -1,0 +1,9 @@
+[package]
+name = "web_r3_tokio"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+futures = "0.1.25"
+tokio = "0.1.16"
+tokio-channel = "0.1.0"

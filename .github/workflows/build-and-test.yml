@@ -1,0 +1,58 @@
+name: Build & test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+env:
+  CARGO_TERM_COLOR: always    
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - beta
+          - nightly
+        features:
+          - serde
+          - serde,base64
+          - simd_backend
+          - default
+        os:
+          - ubuntu-22.04          
+          - macos-10.15
+          - windows-2022
+        exclude:
+          - rust: stable
+            features: simd_backend
+          - rust: beta
+            features: simd_backend
+          - os: windows-2022
+            features: simd_backend
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+          components: rustfmt, clippy
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+      - name: Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings

@@ -1,0 +1,30 @@
+[package]
+name = "web_edu_lib"
+version = "0.1.0"
+authors = ["Arman Riazi"]
+edition = "2021"
+
+
+[dependencies]
+
+serde = {version="1.0.90", features = ["derive"],  optional = false , default-features = true}
+serde_derive = "1.0.90"
+diesel = {version = "2.0.0", git="https://github.com/diesel-rs/diesel.git", features = ["sqlite"]}
+#diesel_codegen = { version = "0.16.0", features = ["sqlite"] }
+dotenv = "0.15.0"
+serde_json="1.0.0"
+shared = { path = "../../../shared",  optional = false , default-features = true}
+failure = "0.1.5"
+anyhow="1.0.20"
+
+
+[dev-dependencies]
+proptest = "1.0.0"
+pretty_assertions = "1.0.0"
+dotenvy = "0.15.6"
+
+[[test]]
+doc = true
+name = "integration_dep_test"
+path = "test/integration_dep_test.rs"
+test = true

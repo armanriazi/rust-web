@@ -1,0 +1,14 @@
+[package]
+edition = "2021"
+name = "web_edu_test"
+version = "0.1.0"
+
+[dev-dependencies]
+proptest = "1"
+pretty_assertions = "1"
+
+[[test]]
+doc = true
+name = "integration_indep_test"
+path = "test/integration_indep_test.rs"
+test = true
