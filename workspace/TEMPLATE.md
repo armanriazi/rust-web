@@ -3,7 +3,7 @@
 
 [RUST](rust/RUST.md)
 
-[DIESEL](rust/DIESEL.md)
+[DIESEL](diesel/DIESEL.md)
 
 # Template
 ```
