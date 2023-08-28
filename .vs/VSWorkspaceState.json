@@ -2,9 +2,17 @@
   "ExpandedNodes": [
     "",
     "\\workspace",
-    "\\workspace\\simple-api",
-    "\\workspace\\simple-api\\src"
+    "\\workspace\\actix_actor",
+    "\\workspace\\actix_actor\\twitter-clone-rust",
+    "\\workspace\\http_wrapper",
+    "\\workspace\\http_wrapper\\simple-api",
+    "\\workspace\\http_wrapper\\simple-api\\src",
+    "\\workspace\\web_edu",
+    "\\workspace\\web_edu\\web_edu_lib\\src",
+    "\\workspace\\web_edu\\web_edu_lib\\src\\core",
+    "\\workspace\\web_r3",
+    "\\workspace\\web_r3\\web_r3_shop_site_actix"
   ],
-  "SelectedNode": "\\workspace",
+  "SelectedNode": "\\workspace\\actix_actor\\twitter-clone-rust",
   "PreviewInSolutionExplorer": false
 }
