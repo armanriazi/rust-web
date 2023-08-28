@@ -9,16 +9,39 @@ edition = "2021"
 
 members = [
 
+    "workspace/shared",        
 
-    "workspace/shared",
+    "workspace/diesel/diesel_v2/mysql/all_about_inserts",
+    "workspace/diesel/diesel_v2/mysql/getting_started_step_1",
+    "workspace/diesel/diesel_v2/mysql/getting_started_step_2",
+    "workspace/diesel/diesel_v2/mysql/getting_started_step_3",
+    "workspace/diesel/diesel_v2/postgres/all_about_inserts",
+    "workspace/diesel/diesel_v2/postgres/getting_started_step_1",
+    "workspace/diesel/diesel_v2/postgres/getting_started_step_2",
+    "workspace/diesel/diesel_v2/postgres/getting_started_step_3",
+    "workspace/diesel/diesel_v2/sqlite/all_about_inserts",
+    "workspace/diesel/diesel_v2/sqlite/getting_started_step_1",
+    "workspace/diesel/diesel_v2/sqlite/getting_started_step_2",
+    "workspace/diesel/diesel_v2/sqlite/getting_started_step_3",
 
-    "workspace/web_edu/web_edu_bin",
-    "workspace/web_edu/web_edu_lib",
-    "workspace/web_edu/web_edu_test",
-
-    "workspace/diesel-2.0.x/sqlite/diesel2_sqlite_step1",    
-    "workspace/diesel-2.0.x/sqlite/diesel2_sqlite_step2",    
-    "workspace/diesel-2.0.x/sqlite/diesel2_sqlite_step3",  
-
-    "workspace/http_wrapper/simple-api",
+   "workspace/diesel/web_edu/web_edu_bin",
+   "workspace/diesel/web_edu/web_edu_lib",
+   "workspace/diesel/web_edu/web_edu_test",
+  
+   "workspace/diesel/web_r3_postgres",
+  #     
+  #
+   "workspace/http_wrapper/simple-api",
+   "workspace/tokio_runtime/web_r3_tokio",
+   "workspace/web_events/web_r3_event",
+  
+   "workspace/actix_actor/twitter-clone-rust",
+  # # "workspace/actix_actor/web_r3_shop_site_actix",
+  
+   "workspace/rocket_orm/pp/pp-maud_02",
+  # "workspace/rocket_orm/pp/pp-r_setup_01",
+  # # "workspace/rocket_orm/pp/pp-web_bank",
+  
+   "workspace/rocket_orm/ria-ch1-time-api",
+  # # "workspace/net/tcp/r3-rust-project-projects-chat_serv"
 ]

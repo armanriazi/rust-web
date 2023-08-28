@@ -9,11 +9,11 @@ edition = "2021"
 
 serde = {version="1.0.90", features = ["derive"],  optional = false , default-features = true}
 serde_derive = "1.0.90"
-diesel = {version = "2.0.0", features = ["sqlite"]}
+diesel = {version = "2.0.0", git="https://github.com/diesel-rs/diesel.git", features = ["sqlite"]}
 #diesel_codegen = { version = "0.16.0", features = ["sqlite"] }
 dotenv = "0.15.0"
 serde_json="1.0.0"
-shared = { path = "../../shared",  optional = false , default-features = true}
+shared = { path = "../../../shared",  optional = false , default-features = true}
 failure = "0.1.5"
 anyhow="1.0.20"
 
