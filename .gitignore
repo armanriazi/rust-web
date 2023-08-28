@@ -5,5 +5,5 @@ rls/
 *.o
 *.sqlite
 db/
-.vsidx
-.wsuo
+*.vsidx
+*.wsuo
