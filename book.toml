@@ -3,31 +3,52 @@ authors = ["Arman Riazi"]
 language = "en"
 multilingual = false
 src = "./workspace/"
-title = "Rust-Web"
+title = "rust-web(A.R)"
 
 [rust]
 edition = "2021"   # the default edition for code blocks
 
+#[preprocessor.index]
+#[preprocessor.links]
 
 [build]
-# extra-watch-dirs = ["./workspace"]
+build-dir = "book"
+create-missing = true             # whether or not to create missing pages
+#use-default-preprocessors = true  # use the default preprocessors
+extra-watch-dirs = ["./workspace"]
 
-# [output.html]
+[output.html]
 # theme = "my-theme"
-# default-theme = "light"
-# preferred-dark-theme = "navy"
-# curly-quotes = true
-# mathjax-support = false
+default-theme = "light"
+preferred-dark-theme = "navy"
+curly-quotes = true
+mathjax-support = true
 # copy-fonts = true
 # additional-css = ["rust/assets/css/custom.css"]
 # additional-js = ["rust/assets/js/custom.js"]
 # no-section-label = false
-git-repository-url = "https://github.com/armanriazi/rust-web"
+git-repository-url = "https://github.com/armanriazi/rust-web/tree/main/workspace"
+edit-url-template = "https://github.com/armanriazi/rust-web/edit/main/workspace/{path}"
 git-repository-icon = "fa-github"
-# edit-url-template = "https://github.com/armanriazi/rust-web/edit/main/workspace"
 site-url = "/rust-web/"
 # cname = "main.rs"
-# input-404 = "not-found.md"
+input-404 = "404.md"
 
-[output.html]
-site-url = "/rust-web/"
+[output.html.print]
+enable = true    # include support for printable output
+page-break = true # insert page-break after each chapter
+
+[output.html.fold]
+enable = true    # whether or not to enable section folding
+level = 1         # the depth to start folding
+
+[output.html.playground]
+editable = true         # allows editing the source code
+copyable = true          # include the copy button for copying code snippets
+copy-js = true           # includes the JavaScript for the code editor
+line-numbers = true     # displays line numbers for editable code
+runnable = true          # displays a run button for rust code
+
+
+#[output.linkcheck]
+#optional = true

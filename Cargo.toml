@@ -21,9 +21,9 @@ members = [
     "workspace/diesel_orm/diesel_v2/postgres/getting_started_step_3",    
     "workspace/diesel_orm/diesel_v2/sqlite/diesel_demo_steps_sqlite",
 
-   "workspace/diesel_orm/web_edu/web_edu_bin",
-   "workspace/diesel_orm/web_edu/web_edu_lib",
-   "workspace/diesel_orm/web_edu/web_edu_test",
+   "workspace/projects/web_edu/web_edu_bin",
+   "workspace/projects/web_edu/web_edu_lib",
+   "workspace/projects/web_edu/web_edu_test",
   
    "workspace/diesel_orm/web_r3_postgres",
   

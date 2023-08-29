@@ -21,7 +21,7 @@ diesel::table! {
 diesel::table! {
     sales (id) {
         id -> Integer,
-        date -> Text,
+        date -> Nullable<Text>,
         tax_total -> Integer,
         sub_total -> Integer,
         total -> Integer,

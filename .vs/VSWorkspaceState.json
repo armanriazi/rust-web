@@ -2,15 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\workspace",
+    "\\workspace\\actix_actor",
     "\\workspace\\diesel_orm",
-    "\\workspace\\diesel_orm\\diesel_v2",
-    "\\workspace\\diesel_orm\\diesel_v2\\postgres",
-    "\\workspace\\diesel_orm\\diesel_v2\\sqlite",
-    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\db",
-    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\diesel_demo_steps_sqlite",
-    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\diesel_demo_steps_sqlite\\src\\bin",
-    "\\workspace\\diesel_orm\\diesel_v2\\sqlite\\diesel_demo_steps_sqlite\\src\\core"
+    "\\workspace\\diesel_orm\\web_edu",
+    "\\workspace\\projects"
   ],
-  "SelectedNode": "\\workspace\\diesel_orm\\diesel_v2\\sqlite",
+  "SelectedNode": "\\workspace",
   "PreviewInSolutionExplorer": false
 }

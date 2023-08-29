@@ -46,7 +46,9 @@ diesel migration generate create_sales --migration-dir='./migrations'
 
 ```
 diesel migration run --database-url='./db/web_edu.sqlite' --migration-dir='./migrations/2023-02-14-103809_create_products'
-diesel migration run --database-url='./db/web_edu_test.sqlite' --migration-dir='./migrations/2023-02-14-103809_create_products'
+diesel migration run --database-url='./db/web_edu_test.sqlite' --migration-dir='./migrations/2023-02-14-104325_create_variants'
+diesel migration run --database-url='./db/web_edu_test.sqlite' --migration-dir='./migrations/2023-02-23-173809_create_sales'
+
 ```
 >
 
