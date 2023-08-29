@@ -1,12 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\.github",
+    "\\.github\\workflows",
     "\\workspace",
     "\\workspace\\actix_actor",
     "\\workspace\\diesel_orm",
-    "\\workspace\\diesel_orm\\web_edu",
     "\\workspace\\projects"
   ],
-  "SelectedNode": "\\workspace",
+  "SelectedNode": "\\Makefile",
   "PreviewInSolutionExplorer": false
 }
